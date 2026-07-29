@@ -16,8 +16,7 @@ can add ggplot layers, themes, titles, and scales.
 
 ## Install
 
-Install the package directly from GitHub. No OneDrive folder or local source
-path is needed for normal use.
+Install the package directly from GitHub:
 
 ```r
 install.packages("remotes")
@@ -44,24 +43,25 @@ fasta_file <- system.file("extdata", "pSGNDM_5.fasta", package = "ggplasmid")
 gbk_data <- read_gbk(gbk_file)
 fasta_data <- read_fasta(fasta_file)
 
-p <- ggplasmid(
+ggplasmid(
   annotation = gbk_data,
   fasta = fasta_data,
   name = "pSGNDM-5",
   layout = "circular",
-  label_exclude_categories = "Other functions",
-  legend_position = "right",
-  max_labels = 24,
-  label_wrap_width = 18,
-  label_text_size = 3.0,
-  label_text_colour = "category",
-  label_line_colour = "category"
+  label_exclude_categories = "Other functions", # hide labels from this category only
+  max_labels = 18,                              # limit labels; all gene arrows still plot
+  label_wrap_width = 16,                        # wrap long labels after about 16 characters
+  label_text_size = 3.0,                        # label font size
+  label_text_colour = "category",               # color label text by feature category
+  label_line_colour = "category",               # color leader lines by feature category
+  legend_position = "bottom",                   # place legends below the map
+  legend_columns = 3,                           # feature-color legend columns
+  gc_legend_columns = 1,                        # GC legend columns
+  inner_radius = 0.30                           # smaller center hole leaves more label space
 )
 
-p
-
-View(gbk_data)
-View(fasta_data)
+View(gbk_data)    # parsed GenBank feature data frame
+View(fasta_data)  # FASTA record table with sequence and length
 ```
 
 ![pSGNDM-5 circular map](man/figures/README-pSGNDM-5.png)
@@ -78,7 +78,7 @@ ggplasmid(
   fasta = fasta_data,
   name = "pSGNDM-5",
   layout = "circular",
-  label_unknown = TRUE
+  label_unknown = TRUE # also label unknown/hypothetical genes
 )
 ```
 
@@ -90,8 +90,8 @@ ggplasmid(
   fasta = fasta_data,
   name = "pSGNDM-5",
   layout = "linear",
-  rows = 5,
-  max_labels = 36
+  rows = 5,       # number of rows in the linear map
+  max_labels = 36 # label limit for the linear map
 )
 ```
 
@@ -109,19 +109,69 @@ ggplasmid(
 
 ## Annotation Table Input
 
-The table needs at least start and end coordinates. Common column names are
-detected automatically: `start`, `end`/`stop`, `strand`/`frame`, `product`/
-`annot`/`annotation`/`function`, `category`/`group`, and `type`/`feature`.
+The table needs at least start and end coordinates. A `category` column is
+recommended because it controls the feature color and, when requested, the
+label color. If no category column is supplied, `ggplasmid` will try to infer a
+category from the feature label and type.
+
+Common column names are detected automatically:
+
+- Coordinates: `start`/`begin`/`from`/`left` and `end`/`stop`/`to`/`right`
+- Strand: `strand`/`frame`/`direction`
+- Label text: `label`/`product`/`annot`/`annotation`/`function`/`gene`/`name`/`note`
+- Category for colors: `category`/`group`/`pharokka_category`/`function_category`/`class`
+- Feature type: `type`/`feature`/`region`
 
 ```r
 features <- data.frame(
   start = c(100, 1700, 3300),
   end = c(900, 2700, 4200),
   strand = c("+", "-", "+"),
-  product = c("replication protein", "mobilization protein", "beta-lactamase")
+  product = c("replication protein", "mobilization protein", "beta-lactamase"),
+  category = c("Replication", "Mobile element", "Antimicrobial resistance")
 )
 
-ggplasmid(features, genome_length = 5000, name = "pExample")
+ggplasmid(
+  features,
+  genome_length = 5000,
+  name = "pExample",
+  label_text_colour = "category", # use the category column for label text colors
+  label_line_colour = "category"  # use the category column for leader line colors
+)
+```
+
+Use category names from `ggplasmid_colors("plasmid")` or
+`ggplasmid_colors("phage")`. To manually change colors for selected categories,
+pass `gene_highlight()` to `ggplasmid()`:
+
+```r
+ggplasmid(
+  features,
+  genome_length = 5000,
+  name = "pExample",
+  gene_highlight = gene_highlight(
+    "Antimicrobial resistance" = "#B2182B",
+    "Replication" = "#2166AC"
+  ),
+  label_text_colour = "category",
+  label_line_colour = "category"
+)
+```
+
+You can also keep color choices in a separate data frame:
+
+```r
+my_colors <- data.frame(
+  category = c("Antimicrobial resistance", "Replication"),
+  color = c("#B2182B", "#2166AC")
+)
+
+ggplasmid(
+  features,
+  genome_length = 5000,
+  name = "pExample",
+  gene_highlight = gene_highlight(my_colors)
+)
 ```
 
 ## Label Control
@@ -170,24 +220,24 @@ ggplasmid(
   annotation = gbk_data,
   fasta = fasta_data,
   name = "pSGNDM-5",
-  palette = "npg",
+  palette = "npg", # ggsci palette; try "aaas", "lancet", "jco", "igv", etc.
   gene_highlight = gene_highlight(
     "Antimicrobial resistance" = "#B2182B",
     "Replication" = "#2166AC"
   ),
-  gene_border_linewidth = 0.35,
-  gene_arrow_head_fraction = 0.45,
-  inner_radius = 0.38,
-  gc_skew_radius = 0.80,
-  gc_content_radius = 0.68,
-  gc_content_linewidth = 0.35,
-  gc_legend_linewidth = 1.6,
-  ruler_linewidth = 0.30,
-  label_text_size = 3.4,
-  label_text_colour = "category",
-  legend_position = "bottom",
-  legend_columns = 3,
-  gc_legend_columns = 1
+  gene_border_linewidth = 0.35,     # outline width around gene arrows
+  gene_arrow_head_fraction = 0.45,  # arrow-head length as a fraction of gene height
+  inner_radius = 0.30,              # center hole size for circular layout
+  gc_skew_radius = 0.80,            # distance from center to GC-skew ring
+  gc_content_radius = 0.68,         # distance from center to GC-content line
+  gc_content_linewidth = 0.35,      # GC-content line width
+  gc_legend_linewidth = 1.6,        # GC legend line thickness
+  ruler_linewidth = 0.30,           # bp ruler circle/tick width
+  label_text_size = 3.4,            # label font size
+  label_text_colour = "category",   # "category" or a fixed color such as "black"
+  legend_position = "bottom",       # "right", "bottom", "left", "top", or "none"
+  legend_columns = 3,               # feature-color legend columns
+  gc_legend_columns = 1             # GC legend columns
 )
 ```
 
