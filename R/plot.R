@@ -535,6 +535,28 @@ auto_legend_plot_spacing <- function(spacing, position, label_bounds,
   max(spacing, overflow * cm_per_npc + padding_cm)
 }
 
+circular_plot_margin <- function(label_bounds = NULL,
+                                 base = c(top = 16, right = 28, bottom = 16, left = 28),
+                                 overflow_scale = 420) {
+  margin_values <- base
+  if (!is.null(label_bounds) && length(label_bounds)) {
+    overflow <- c(
+      top = max(0, unname(label_bounds[["ymax"]]) - 1),
+      right = max(0, unname(label_bounds[["xmax"]]) - 1),
+      bottom = max(0, -unname(label_bounds[["ymin"]])),
+      left = max(0, -unname(label_bounds[["xmin"]]))
+    )
+    margin_values <- margin_values + overflow * overflow_scale
+  }
+
+  ggplot2::margin(
+    t = unname(margin_values[["top"]]),
+    r = unname(margin_values[["right"]]),
+    b = unname(margin_values[["bottom"]]),
+    l = unname(margin_values[["left"]])
+  )
+}
+
 pack_side_label_boxes <- function(y, height, lower = 0.015, upper = 0.985,
                                   padding = 0.006) {
   n <- length(y)
@@ -1530,7 +1552,7 @@ plot_circular_plasmid <- function(features, genome_length, name = NULL,
       legend.key.width = grid::unit(0.45, "cm"),
       plot.background = ggplot2::element_rect(fill = "white", colour = NA),
       panel.background = ggplot2::element_rect(fill = "white", colour = NA),
-      plot.margin = ggplot2::margin(110, 130, 42, 130)
+      plot.margin = circular_plot_margin(label_bounds)
     )
 
   attr(p, "ggplasmid_layout") <- "circular"

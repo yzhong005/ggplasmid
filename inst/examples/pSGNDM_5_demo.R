@@ -19,7 +19,9 @@ p_circular <- ggplasmid(
   legend_position = "right",
   max_labels = 24,
   label_wrap_width = 18,
-  label_text_size = 3.0
+  label_text_size = 3.0,
+  label_text_colour = "category",
+  label_line_colour = "category"
 )
 p_circular
 
