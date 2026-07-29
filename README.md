@@ -1,26 +1,33 @@
 # ggplasmid
 
-`ggplasmid` is a plasmid-first mapping package built on `ggplot2`. It draws
-linear or circular feature maps from annotation tables or GenBank files, with an
-optional GC-skew track from FASTA/GenBank sequence.
+`ggplasmid` is an R package for generating publication-quality genetic maps,
+with particular suitability for plasmids and bacteriophages. Built entirely
+within the `ggplot2` framework, it supports both circular and linear plotting of
+annotated genetic features. Its intelligent label-placement algorithm
+automatically minimizes label overlap, making it particularly effective for
+dense multidrug-resistant plasmids containing numerous resistance genes, mobile
+genetic elements, and other features requiring labels. It can also plot circular
+or linear maps for bacteriophage genomes, including a terminal marker option for
+linear phage genomes. The package provides a curated catalogue of color
+palettes for genetic features and labels, and supports palettes from `ggsci`.
 
 The main function is `ggplasmid()`. It returns a normal `ggplot` object, so you
 can add ggplot layers, themes, titles, and scales.
 
 ## Install
 
-```r
-install.packages(c("ggplot2", "ggsci", "ggrepel", "devtools"))
-devtools::install_github("yzhong005/ggplasmid")
-```
-
-`ggrepel` is used for repelled text labels in linear maps.
-
-During local development, load the package source folder directly:
+Install the package directly from GitHub. No OneDrive folder or local source
+path is needed for normal use.
 
 ```r
-devtools::load_all("path/to/ggplasmid_package_development")
+install.packages("remotes")
+remotes::install_github("yzhong005/ggplasmid")
+
+library(ggplasmid)
 ```
+
+`ggplot2`, `ggsci`, and `ggrepel` are installed automatically as package
+dependencies when needed.
 
 ## pSGNDM-5 Demo
 
@@ -31,8 +38,6 @@ The package includes a real 84,257 bp pSGNDM-5 example plasmid:
 - Plasmid: pSGNDM-5
 
 ```r
-library(ggplasmid)
-
 gbk_file <- system.file("extdata", "pSGNDM_5.gbk", package = "ggplasmid")
 fasta_file <- system.file("extdata", "pSGNDM_5.fasta", package = "ggplasmid")
 
