@@ -10,10 +10,11 @@ can add ggplot layers, themes, titles, and scales.
 ## Install
 
 ```r
-install.packages(c("ggplot2", "ggrepel"))
-install.packages("devtools")
+install.packages(c("ggplot2", "ggsci", "ggrepel", "devtools"))
 devtools::install_github("yzhong005/ggplasmid")
 ```
+
+`ggrepel` is used for repelled text labels in linear maps.
 
 During local development, load the package source folder directly:
 
@@ -50,6 +51,8 @@ p
 View(gbk_data)
 View(fasta_data)
 ```
+
+![pSGNDM-5 circular map](man/figures/README-pSGNDM-5.png)
 
 `gbk_data` is the parsed GenBank feature data frame. `fasta_data` is a data
 frame with the FASTA record name, description, sequence, and length. The exact

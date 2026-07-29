@@ -5,3 +5,5 @@
 *.Rcheck/
 *.tar.gz
 *.png
+!man/figures/
+!man/figures/*.png
