@@ -667,6 +667,10 @@ place_radial_label_boxes <- function(x, genome_length, text, right,
   right[is.na(right)] <- TRUE
   theta <- 2 * pi * as.numeric(x) / genome_length
   label_hjust <- ifelse(abs(sin(theta)) < 0.20, 0.5, ifelse(right, 0, 1))
+  vertical_label <- abs(sin(theta)) < 0.20
+  vertical_direction <- sign(cos(theta))
+  vertical_direction[!vertical_label] <- 0
+  vertical_edge_gap <- 0.002
   npcx <- rep(NA_real_, n)
   npcy <- rep(NA_real_, n)
   lanes <- rep(NA_integer_, n)
@@ -693,12 +697,15 @@ place_radial_label_boxes <- function(x, genome_length, text, right,
       y_max = y_max,
       inner_radius = inner_radius
     )
+    text_x <- position$npcx[[1L]]
+    text_y <- position$npcy[[1L]] +
+      vertical_direction[[i]] * (dims$height[[i]] / 2 + vertical_edge_gap)
     list(
-      x = position$npcx[[1L]],
-      y = position$npcy[[1L]],
+      x = text_x,
+      y = text_y,
       box = label_box_frame(
-        position$npcx[[1L]],
-        position$npcy[[1L]],
+        text_x,
+        text_y,
         dims$width[[i]],
         dims$height[[i]],
         hjust = label_hjust[[i]]
