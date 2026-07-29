@@ -36,6 +36,12 @@ The package includes a real 84,257 bp pSGNDM-5 example plasmid:
 - SRA project: SRP313016
 - Plasmid: pSGNDM-5
 
+Demo plasmid source: Zhong Y, Guo S, Schlundt J, Kwa AL. Identification
+and genomic characterization of a blaNDM-5-harbouring MDR plasmid in a
+carbapenem-resistant *Escherichia coli* ST410 strain isolated from a natural
+water environmental source. *JAC-Antimicrobial Resistance*. 2022;4(4):dlac071.
+doi: [10.1093/jacamr/dlac071](https://doi.org/10.1093/jacamr/dlac071).
+
 ```r
 gbk_file <- system.file("extdata", "pSGNDM_5.gbk", package = "ggplasmid")
 fasta_file <- system.file("extdata", "pSGNDM_5.fasta", package = "ggplasmid")
