@@ -7,12 +7,18 @@ optional GC-skew track from FASTA/GenBank sequence.
 The main function is `ggplasmid()`. It returns a normal `ggplot` object, so you
 can add ggplot layers, themes, titles, and scales.
 
-## Install During Development
+## Install
 
 ```r
 install.packages(c("ggplot2", "ggrepel"))
 install.packages("devtools")
-devtools::load_all("C:/Users/xinmatrix/OneDrive/R_package_development/ggplasmid_package_development")
+devtools::install_github("yzhong005/ggplasmid")
+```
+
+During local development, load the package source folder directly:
+
+```r
+devtools::load_all("path/to/ggplasmid_package_development")
 ```
 
 ## pSGNDM-5 Demo
