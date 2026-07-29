@@ -20,7 +20,7 @@ Install the package directly from GitHub:
 
 ```r
 install.packages("remotes")
-remotes::install_github("yzhong005/ggplasmid")
+remotes::install_github("yzhong005/ggplasmidZY")
 
 library(ggplasmidZY)
 ```

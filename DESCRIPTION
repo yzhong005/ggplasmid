@@ -18,8 +18,8 @@ Description: Generate publication-quality genetic maps, with particular
     color palettes for genetic features and labels, and supports palettes from
     ggsci.
 License: MIT + file LICENSE
-URL: https://github.com/yzhong005/ggplasmid
-BugReports: https://github.com/yzhong005/ggplasmid/issues
+URL: https://github.com/yzhong005/ggplasmidZY
+BugReports: https://github.com/yzhong005/ggplasmidZY/issues
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
