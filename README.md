@@ -43,7 +43,12 @@ p <- ggplasmid(
   annotation = gbk_data,
   fasta = fasta_data,
   name = "pSGNDM-5",
-  layout = "circular"
+  layout = "circular",
+  label_exclude_categories = "Other functions",
+  legend_position = "right",
+  max_labels = 24,
+  label_wrap_width = 18,
+  label_text_size = 3.0
 )
 
 p

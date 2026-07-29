@@ -25,6 +25,7 @@ ggplasmid(
   show_labels = TRUE,
   label_unknown = FALSE,
   label_pattern = NULL,
+  label_exclude_categories = NULL,
   max_labels = NULL,
   label_min_gap_deg = NULL,
   label_line_length = 0.02,
@@ -123,6 +124,9 @@ sequence/skew data are available.}
 
 \item{label_pattern}{Optional regular expression. Matching features are
 prioritized for labels.}
+
+\item{label_exclude_categories}{Optional category names whose features should
+still be drawn but not labeled.}
 
 \item{max_labels}{Maximum number of labels to consider. The default is \code{Inf},
 so all eligible labels are considered. Circular labels are placed from

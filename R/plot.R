@@ -243,6 +243,7 @@ default_label_pattern <- function(category_scheme) {
 }
 
 select_label_data <- function(features, label_unknown = FALSE,
+                              label_exclude_categories = NULL,
                               label_pattern = NULL, max_labels = Inf,
                               min_feature_bp = 1,
                               category_scheme = "plasmid",
@@ -261,6 +262,17 @@ select_label_data <- function(features, label_unknown = FALSE,
       ,
       drop = FALSE
     ]
+  }
+  if (!is.null(label_exclude_categories) && length(label_exclude_categories)) {
+    label_exclude_categories <- as.character(label_exclude_categories)
+    label_exclude_categories <- label_exclude_categories[nzchar(label_exclude_categories)]
+    if (length(label_exclude_categories)) {
+      label_data <- label_data[
+        !(label_data$category %in% label_exclude_categories),
+        ,
+        drop = FALSE
+      ]
+    }
   }
   if (!nrow(label_data)) {
     return(label_data)
@@ -1206,6 +1218,7 @@ plot_circular_plasmid <- function(features, genome_length, name = NULL,
                                   category_scheme = "plasmid",
                                   gc_skew = NULL, show_labels = TRUE,
                                   label_unknown = FALSE,
+                                  label_exclude_categories = NULL,
                                   label_pattern = NULL, max_labels = Inf,
                                   label_min_gap_deg = 0,
                                   label_line_length = 0.02,
@@ -1376,6 +1389,7 @@ plot_circular_plasmid <- function(features, genome_length, name = NULL,
   label_data <- select_label_data(
     features,
     label_unknown = label_unknown,
+    label_exclude_categories = label_exclude_categories,
     label_pattern = label_pattern,
     max_labels = max_labels,
     label_min_gap_deg = label_min_gap_deg,
@@ -1535,6 +1549,7 @@ plot_circular_plasmid <- function(features, genome_length, name = NULL,
 plot_linear_plasmid <- function(features, genome_length, name = NULL, rows = 4,
                                 category_scheme = "plasmid", gc_skew = NULL,
                                 show_labels = TRUE, label_unknown = FALSE,
+                                label_exclude_categories = NULL,
                                 label_pattern = NULL, max_labels = Inf,
                                 label_min_gap_deg = 0,
                                 min_feature_bp = 1,
@@ -1658,6 +1673,7 @@ plot_linear_plasmid <- function(features, genome_length, name = NULL, rows = 4,
   label_data <- select_label_data(
     features,
     label_unknown = label_unknown,
+    label_exclude_categories = label_exclude_categories,
     label_pattern = label_pattern,
     max_labels = max_labels,
     label_min_gap_deg = label_min_gap_deg,
@@ -1799,6 +1815,8 @@ plot_linear_plasmid <- function(features, genome_length, name = NULL, rows = 4,
 #'   sequence/skew data are available.
 #' @param show_labels Whether to draw feature labels.
 #' @param label_unknown Whether to label unknown/hypothetical features.
+#' @param label_exclude_categories Optional category names whose features should
+#'   still be drawn but not labeled.
 #' @param label_pattern Optional regular expression. Matching features are
 #'   prioritized for labels.
 #' @param max_labels Maximum number of labels to consider. The default is `Inf`,
@@ -1890,6 +1908,7 @@ ggplasmid <- function(annotation = NULL, gbk = NULL, fasta = NULL, skew_table = 
                       palette = "default", gene_highlight = NULL,
                       rows = 4, show_gc_skew = TRUE, show_labels = TRUE,
                       label_unknown = FALSE, label_pattern = NULL,
+                      label_exclude_categories = NULL,
                       max_labels = NULL, label_min_gap_deg = NULL,
                       label_line_length = 0.02,
                       mini_label_line_length = NULL,
@@ -2043,6 +2062,7 @@ ggplasmid <- function(annotation = NULL, gbk = NULL, fasta = NULL, skew_table = 
       gc_skew = gc_skew,
       show_labels = show_labels,
       label_unknown = label_unknown,
+      label_exclude_categories = label_exclude_categories,
       label_pattern = label_pattern,
       max_labels = max_labels,
       label_min_gap_deg = label_min_gap_deg,
@@ -2101,6 +2121,7 @@ ggplasmid <- function(annotation = NULL, gbk = NULL, fasta = NULL, skew_table = 
       gc_skew = gc_skew,
       show_labels = show_labels,
       label_unknown = label_unknown,
+      label_exclude_categories = label_exclude_categories,
       label_pattern = label_pattern,
       max_labels = max_labels,
       label_min_gap_deg = label_min_gap_deg,
@@ -2199,6 +2220,7 @@ plot_phage_map <- function(annotation = NULL, gbk = NULL, fasta = NULL,
                            rows = 4, show_gc_skew = TRUE,
                            show_labels = TRUE,
                            label_unknown = FALSE,
+                           label_exclude_categories = NULL,
                            label_pattern = NULL, max_labels = NULL,
                            label_min_gap_deg = NULL,
                            label_line_length = 0.02,
@@ -2264,6 +2286,7 @@ plot_phage_map <- function(annotation = NULL, gbk = NULL, fasta = NULL,
     show_gc_skew = show_gc_skew,
     show_labels = show_labels,
     label_unknown = label_unknown,
+    label_exclude_categories = label_exclude_categories,
     label_pattern = label_pattern,
     max_labels = max_labels,
     label_min_gap_deg = label_min_gap_deg,

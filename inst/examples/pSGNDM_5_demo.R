@@ -15,7 +15,11 @@ p_circular <- ggplasmid(
   fasta = fasta_data,
   name = "pSGNDM-5",
   layout = "circular",
-  max_labels = 14
+  label_exclude_categories = "Other functions",
+  legend_position = "right",
+  max_labels = 24,
+  label_wrap_width = 18,
+  label_text_size = 3.0
 )
 p_circular
 

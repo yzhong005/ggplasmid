@@ -23,6 +23,7 @@ plot_phage_map(
   show_gc_skew = TRUE,
   show_labels = TRUE,
   label_unknown = FALSE,
+  label_exclude_categories = NULL,
   label_pattern = NULL,
   max_labels = NULL,
   label_min_gap_deg = NULL,
@@ -117,6 +118,9 @@ sequence/skew data are available.}
 \item{show_labels}{Whether to draw feature labels.}
 
 \item{label_unknown}{Whether to label unknown/hypothetical features.}
+
+\item{label_exclude_categories}{Optional category names whose features should
+still be drawn but not labeled.}
 
 \item{label_pattern}{Optional regular expression. Matching features are
 prioritized for labels.}
