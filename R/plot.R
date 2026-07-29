@@ -666,11 +666,9 @@ place_radial_label_boxes <- function(x, genome_length, text, right,
   right <- as.logical(right)
   right[is.na(right)] <- TRUE
   theta <- 2 * pi * as.numeric(x) / genome_length
-  label_hjust <- ifelse(abs(sin(theta)) < 0.20, 0.5, ifelse(right, 0, 1))
   vertical_label <- abs(sin(theta)) < 0.20
-  vertical_direction <- sign(cos(theta))
-  vertical_direction[!vertical_label] <- 0
-  vertical_edge_gap <- 0.002
+  label_hjust <- ifelse(vertical_label, 0.5, ifelse(right, 0, 1))
+  vertical_edge_gap <- 0.008
   npcx <- rep(NA_real_, n)
   npcy <- rep(NA_real_, n)
   lanes <- rep(NA_integer_, n)
@@ -697,9 +695,17 @@ place_radial_label_boxes <- function(x, genome_length, text, right,
       y_max = y_max,
       inner_radius = inner_radius
     )
+    vertical_shift <- if (vertical_label[[i]]) {
+      dims$height[[i]] * 0.65 + vertical_edge_gap
+    } else {
+      0
+    }
     text_x <- position$npcx[[1L]]
-    text_y <- position$npcy[[1L]] +
-      vertical_direction[[i]] * (dims$height[[i]] / 2 + vertical_edge_gap)
+    text_y <- position$npcy[[1L]]
+    if (vertical_shift > 0) {
+      text_x <- text_x + sin(theta[[i]]) * vertical_shift
+      text_y <- text_y + cos(theta[[i]]) * vertical_shift
+    }
     list(
       x = text_x,
       y = text_y,
@@ -1162,14 +1168,14 @@ circular_feature_label_overlay <- function(label_data, genome_length,
   label_dims <- label_box_dimensions(text, label_text_size)
   line_x <- label_position$npcx
   line_y <- label_position$npcy
-  top_bottom <- abs(sin(theta * pi / 180)) < 0.20
-  top_label <- top_bottom & cos(theta * pi / 180) > 0
-  bottom_label <- top_bottom & cos(theta * pi / 180) < 0
-  edge_gap <- 0.002
-  line_y[top_label] <- label_position$npcy[top_label] -
-    label_dims$height[top_label] / 2 - edge_gap
-  line_y[bottom_label] <- label_position$npcy[bottom_label] +
-    label_dims$height[bottom_label] / 2 + edge_gap
+  theta_rad <- theta * pi / 180
+  top_bottom <- abs(sin(theta_rad)) < 0.20
+  edge_gap <- 0.008
+  edge_shift <- label_dims$height * 0.65 + edge_gap
+  line_x[top_bottom] <- label_position$npcx[top_bottom] -
+    sin(theta_rad[top_bottom]) * edge_shift[top_bottom]
+  line_y[top_bottom] <- label_position$npcy[top_bottom] -
+    cos(theta_rad[top_bottom]) * edge_shift[top_bottom]
 
   data.frame(
     npcx = label_position$npcx,
