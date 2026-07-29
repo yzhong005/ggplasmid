@@ -491,6 +491,160 @@ label_box_frame <- function(x, y, width, height, right = TRUE, hjust = NULL) {
   )
 }
 
+label_adjust_column <- function(data, candidates) {
+  matched <- candidates[candidates %in% names(data)]
+  if (length(matched)) matched[[1L]] else NA_character_
+}
+
+normalise_label_adjust <- function(adjustment = NULL) {
+  empty <- data.frame(
+    label = character(),
+    hjust = numeric(),
+    vjust = numeric(),
+    stringsAsFactors = FALSE
+  )
+  if (is.null(adjustment)) {
+    return(empty)
+  }
+
+  if (inherits(adjustment, "ggplasmid_label_adjust")) {
+    adjustment <- unclass(adjustment)
+  }
+
+  if (is.data.frame(adjustment)) {
+    label_col <- label_adjust_column(
+      adjustment,
+      c("label", "label_display", "label_raw", "product", "name")
+    )
+    if (is.na(label_col)) {
+      stop(
+        "`label_adjust` data frames need a label/name column.",
+        call. = FALSE
+      )
+    }
+    h_col <- label_adjust_column(adjustment, c("hjust", "x", "dx", "x_shift"))
+    v_col <- label_adjust_column(adjustment, c("vjust", "y", "dy", "y_shift"))
+    out <- data.frame(
+      label = as.character(adjustment[[label_col]]),
+      hjust = if (is.na(h_col)) 0 else as.numeric(adjustment[[h_col]]),
+      vjust = if (is.na(v_col)) 0 else as.numeric(adjustment[[v_col]]),
+      stringsAsFactors = FALSE
+    )
+  } else if (is.list(adjustment)) {
+    if ("label" %in% names(adjustment)) {
+      out <- data.frame(
+        label = as.character(adjustment[["label"]]),
+        hjust = as.numeric(adjustment[["hjust"]] %||% 0),
+        vjust = as.numeric(adjustment[["vjust"]] %||% 0),
+        stringsAsFactors = FALSE
+      )
+    } else if (!is.null(names(adjustment)) && all(nzchar(names(adjustment)))) {
+      pieces <- lapply(names(adjustment), function(label) {
+        value <- adjustment[[label]]
+        if (is.list(value)) {
+          data.frame(
+            label = label,
+            hjust = as.numeric(value[["hjust"]] %||% value[["x"]] %||% 0),
+            vjust = as.numeric(value[["vjust"]] %||% value[["y"]] %||% 0),
+            stringsAsFactors = FALSE
+          )
+        } else {
+          value <- unlist(value)
+          data.frame(
+            label = label,
+            hjust = as.numeric(value[["hjust"]] %||% value[["x"]] %||% 0),
+            vjust = as.numeric(value[["vjust"]] %||% value[["y"]] %||% 0),
+            stringsAsFactors = FALSE
+          )
+        }
+      })
+      out <- do.call(rbind, pieces)
+    } else {
+      pieces <- lapply(adjustment, normalise_label_adjust)
+      pieces <- pieces[vapply(pieces, nrow, integer(1L)) > 0L]
+      out <- if (length(pieces)) do.call(rbind, pieces) else empty
+    }
+  } else {
+    stop(
+      "`label_adjust` must be a data frame, list, or label_adjust() result.",
+      call. = FALSE
+    )
+  }
+
+  out$label <- trimws(out$label)
+  out$hjust[!is.finite(out$hjust)] <- 0
+  out$vjust[!is.finite(out$vjust)] <- 0
+  out[nzchar(out$label), , drop = FALSE]
+}
+
+#' Manually shift selected circular labels
+#'
+#' @param label Label text to match. The match is checked against the plotted
+#'   label, raw label, display label, and wrapped label text.
+#' @param hjust Horizontal shift in plot-panel units. Positive values move the
+#'   label to the right.
+#' @param vjust Vertical shift in plot-panel units. Positive values move the
+#'   label upward.
+#' @return A data frame usable with the `label_adjust` argument in
+#'   [ggplasmid()] or [plot_phage_map()].
+#' @export
+label_adjust <- function(label, hjust = 0, vjust = 0) {
+  if (is.data.frame(label) || is.list(label)) {
+    out <- normalise_label_adjust(label)
+  } else {
+    out <- normalise_label_adjust(
+      data.frame(
+        label = label,
+        hjust = hjust,
+        vjust = vjust,
+        stringsAsFactors = FALSE
+      )
+    )
+  }
+  class(out) <- c("ggplasmid_label_adjust", class(out))
+  out
+}
+
+normalise_label_key <- function(x) {
+  x <- gsub("\\s+", " ", as.character(x))
+  trimws(x)
+}
+
+apply_label_adjust <- function(label_position, label_data, text,
+                               adjustment = NULL) {
+  adjustments <- normalise_label_adjust(adjustment)
+  if (!nrow(adjustments) || !nrow(label_position)) {
+    return(label_position)
+  }
+
+  candidates <- data.frame(
+    label_display = normalise_label_key(label_data$label_display %||% ""),
+    label_raw = normalise_label_key(label_data$label_raw %||% ""),
+    label = normalise_label_key(label_data$label %||% ""),
+    text = normalise_label_key(text),
+    stringsAsFactors = FALSE
+  )
+
+  for (i in seq_len(nrow(adjustments))) {
+    target <- normalise_label_key(adjustments$label[[i]])
+    match_index <- which(
+      candidates$label_display == target |
+        candidates$label_raw == target |
+        candidates$label == target |
+        candidates$text == target
+    )
+    if (!length(match_index)) {
+      next
+    }
+    label_position$npcx[match_index] <-
+      label_position$npcx[match_index] + adjustments$hjust[[i]]
+    label_position$npcy[match_index] <-
+      label_position$npcy[match_index] + adjustments$vjust[[i]]
+  }
+
+  label_position
+}
+
 label_overlay_npc_bounds <- function(label_overlay, padding = 0.006) {
   if (is.null(label_overlay) || !nrow(label_overlay)) {
     return(NULL)
@@ -1095,6 +1249,7 @@ circular_feature_label_overlay <- function(label_data, genome_length,
                                            label_text_size = 3.4,
                                            label_text_colour = "black",
                                            label_line_colour = "grey70",
+                                           label_adjust = NULL,
                                            label_y_max = 1.95,
                                            feature_colors = NULL) {
   theta <- (label_data$xmid %% genome_length) / genome_length * 360
@@ -1136,6 +1291,12 @@ circular_feature_label_overlay <- function(label_data, genome_length,
   label_colours <- label_colours[keep]
   line_colours <- line_colours[keep]
   theta <- theta[keep]
+  label_position <- apply_label_adjust(
+    label_position,
+    label_data,
+    text,
+    adjustment = label_adjust
+  )
   if (!nrow(label_position)) {
     return(data.frame(
       npcx = numeric(),
@@ -1283,6 +1444,7 @@ plot_circular_plasmid <- function(features, genome_length, name = NULL,
                                   label_line_colour = "grey70",
                                   label_linewidth = 0.30,
                                   label_line_linetype = "dashed",
+                                  label_adjust = NULL,
                                   min_feature_bp = 1,
                                   show_ruler = TRUE,
                                   ruler_major_bp = NULL,
@@ -1496,6 +1658,7 @@ plot_circular_plasmid <- function(features, genome_length, name = NULL,
       label_text_size = effective_label_text_size,
       label_text_colour = label_text_colour,
       label_line_colour = label_line_colour,
+      label_adjust = label_adjust,
       label_y_max = y_limit,
       feature_colors = plot_colors
     )
@@ -1899,6 +2062,9 @@ plot_linear_plasmid <- function(features, genome_length, name = NULL, rows = 4,
 #'   When `NULL`, the step is calculated from label height.
 #' @param label_line_colour,label_linewidth,label_line_linetype Circular label
 #'   leader line colour, width, and linetype.
+#' @param label_adjust Manual circular-label shifts. Use [label_adjust()], a
+#'   data frame with `label`, `hjust`, and `vjust` columns, or a list with those
+#'   entries. Shifts are in plot-panel units after automatic placement.
 #' @param min_feature_bp Minimum feature length to label.
 #' @param show_ruler Whether to draw the circular clock/ruler track. Only used
 #'   when `layout = "circular"`.
@@ -1982,6 +2148,7 @@ ggplasmid <- function(annotation = NULL, gbk = NULL, fasta = NULL, skew_table = 
                       label_line_colour = "grey70",
                       label_linewidth = 0.30,
                       label_line_linetype = "dashed",
+                      label_adjust = NULL,
                       min_feature_bp = 1,
                       show_ruler = TRUE,
                       ruler_major_bp = NULL, ruler_minor_bp = NULL,
@@ -2140,6 +2307,7 @@ ggplasmid <- function(annotation = NULL, gbk = NULL, fasta = NULL, skew_table = 
       label_line_colour = label_line_colour,
       label_linewidth = label_linewidth,
       label_line_linetype = label_line_linetype,
+      label_adjust = label_adjust,
       min_feature_bp = min_feature_bp,
       show_ruler = show_ruler,
       ruler_major_bp = ruler_major_bp,
@@ -2300,6 +2468,7 @@ plot_phage_map <- function(annotation = NULL, gbk = NULL, fasta = NULL,
                            label_line_colour = "grey70",
                            label_linewidth = 0.30,
                            label_line_linetype = "dashed",
+                           label_adjust = NULL,
                            show_ruler = TRUE,
                            ruler_major_bp = NULL, ruler_minor_bp = NULL,
                            gene_radius = 1,
@@ -2368,6 +2537,7 @@ plot_phage_map <- function(annotation = NULL, gbk = NULL, fasta = NULL,
     label_line_colour = label_line_colour,
     label_linewidth = label_linewidth,
     label_line_linetype = label_line_linetype,
+    label_adjust = label_adjust,
     min_feature_bp = min_feature_bp,
     show_ruler = show_ruler,
     ruler_major_bp = ruler_major_bp,

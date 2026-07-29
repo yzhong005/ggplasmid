@@ -37,6 +37,7 @@ plot_plasmid_map(
   label_line_colour = "grey70",
   label_linewidth = 0.3,
   label_line_linetype = "dashed",
+  label_adjust = NULL,
   min_feature_bp = 1,
   show_ruler = TRUE,
   ruler_major_bp = NULL,
@@ -159,6 +160,10 @@ When \code{NULL}, the step is calculated from label height.}
 
 \item{label_line_colour, label_linewidth, label_line_linetype}{Circular label
 leader line colour, width, and linetype.}
+
+\item{label_adjust}{Manual circular-label shifts. Use \code{\link[=label_adjust]{label_adjust()}}, a
+data frame with \code{label}, \code{hjust}, and \code{vjust} columns, or a list with those
+entries. Shifts are in plot-panel units after automatic placement.}
 
 \item{min_feature_bp}{Minimum feature length to label.}
 

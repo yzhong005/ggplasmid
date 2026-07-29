@@ -208,6 +208,41 @@ ggplasmid(annotation = gbk_data, fasta = fasta_data,
           name = "pSGNDM-5", show_labels = FALSE)
 ```
 
+Fine-tune one or a few labels after automatic placement:
+
+```r
+ggplasmid(
+  annotation = gbk_data,
+  fasta = fasta_data,
+  name = "pSGNDM-5",
+  label_adjust = label_adjust(
+    label = "RelB/StbD replicon stabilization protein (antitoxin to RelE/StbE)",
+    hjust = 0.02,  # positive moves the label right
+    vjust = -0.03  # positive moves the label up
+  )
+)
+```
+
+The same adjustment can be supplied as a data frame or list:
+
+```r
+label_adjust_df <- data.frame(
+  label = c("RelB/StbD replicon stabilization protein (antitoxin to RelE/StbE)"),
+  hjust = c(0.02),
+  vjust = c(-0.03)
+)
+
+ggplasmid(annotation = gbk_data, fasta = fasta_data,
+          name = "pSGNDM-5",
+          label_adjust = label_adjust_df)
+
+ggplasmid(annotation = gbk_data, fasta = fasta_data,
+          name = "pSGNDM-5",
+          label_adjust = list(label = "RelB/StbD replicon stabilization protein (antitoxin to RelE/StbE)",
+                              hjust = 0.02,
+                              vjust = -0.03))
+```
+
 If Windows reports a font database warning, keep the default portable font or
 choose an installed family:
 
