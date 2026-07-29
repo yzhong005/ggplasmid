@@ -31,6 +31,7 @@ plot_phage_map(
   mini_label_line_length = NULL,
   min_feature_bp = 1,
   label_wrap_width = 28L,
+  label_anchor_radius = 1.07,
   label_lane_spacing = 0.24,
   label_lane_step = NULL,
   label_line_colour = "grey45",
@@ -143,6 +144,9 @@ supplied, it overrides \code{label_line_length}.}
 
 \item{label_wrap_width}{Number of characters per label line before wrapping.
 Set to \code{Inf} or \code{NULL} to disable wrapping.}
+
+\item{label_anchor_radius}{Starting radius for outside circular labels.
+Increase it to push labels farther from the gene ring.}
 
 \item{label_lane_spacing}{Extra spacing for circular labels when nearby
 labels need a small outward offset.}

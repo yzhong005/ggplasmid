@@ -1246,6 +1246,7 @@ plot_circular_plasmid <- function(features, genome_length, name = NULL,
                                   label_line_length = 0.02,
                                   mini_label_line_length = NULL,
                                   label_wrap_width = 28L,
+                                  label_anchor_radius = 1.07,
                                   label_lane_spacing = 0.24,
                                   label_lane_step = NULL,
                                   label_line_colour = "grey45",
@@ -1445,13 +1446,18 @@ plot_circular_plasmid <- function(features, genome_length, name = NULL,
       label_wrap_width
     }
     effective_label_lane_spacing <- label_lane_spacing
+    effective_label_anchor_radius <- max(
+      label_anchor_radius,
+      gene_radius + gene_height / 2,
+      na.rm = TRUE
+    )
     label_overlay <- circular_feature_label_overlay(
       label_data,
       genome_length = genome_length,
       inner_radius = inner_radius,
       label_line_length = label_line_length,
       label_wrap_width = effective_label_wrap_width,
-      label_anchor_radius = gene_radius + gene_height / 2,
+      label_anchor_radius = effective_label_anchor_radius,
       label_line_anchor_radius = gene_radius,
       label_lane_spacing = effective_label_lane_spacing,
       label_lane_step = label_lane_step,
@@ -1893,6 +1899,8 @@ plot_linear_plasmid <- function(features, genome_length, name = NULL, rows = 4,
 #' @param label_text_colour Label text colour. Use `"black"` for one fixed
 #'   colour, `"category"` to match each label to its gene category colour, or a
 #'   named vector such as `c("Antimicrobial resistance" = "#B2182B")`.
+#' @param label_anchor_radius Starting radius for outside circular labels.
+#'   Increase it to push labels farther from the gene ring.
 #' @param row_label_text_size Text size for linear row labels.
 #' @param legend_position Legend position passed to ggplot2, such as
 #'   `"bottom"`, `"right"`, `"left"`, `"top"`, or `"none"`.
@@ -1935,6 +1943,7 @@ ggplasmid <- function(annotation = NULL, gbk = NULL, fasta = NULL, skew_table = 
                       label_line_length = 0.02,
                       mini_label_line_length = NULL,
                       label_wrap_width = 28L,
+                      label_anchor_radius = 1.07,
                       label_lane_spacing = 0.24,
                       label_lane_step = NULL,
                       label_line_colour = "grey45",
@@ -2091,6 +2100,7 @@ ggplasmid <- function(annotation = NULL, gbk = NULL, fasta = NULL, skew_table = 
       label_line_length = label_line_length,
       mini_label_line_length = mini_label_line_length,
       label_wrap_width = label_wrap_width,
+      label_anchor_radius = label_anchor_radius,
       label_lane_spacing = label_lane_spacing,
       label_lane_step = label_lane_step,
       label_line_colour = label_line_colour,
@@ -2249,6 +2259,7 @@ plot_phage_map <- function(annotation = NULL, gbk = NULL, fasta = NULL,
                            mini_label_line_length = NULL,
                            min_feature_bp = 1,
                            label_wrap_width = 28L,
+                           label_anchor_radius = 1.07,
                            label_lane_spacing = 0.24,
                            label_lane_step = NULL,
                            label_line_colour = "grey45",
@@ -2315,6 +2326,7 @@ plot_phage_map <- function(annotation = NULL, gbk = NULL, fasta = NULL,
     label_line_length = label_line_length,
     mini_label_line_length = mini_label_line_length,
     label_wrap_width = label_wrap_width,
+    label_anchor_radius = label_anchor_radius,
     label_lane_spacing = label_lane_spacing,
     label_lane_step = label_lane_step,
     label_line_colour = label_line_colour,

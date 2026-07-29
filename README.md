@@ -55,14 +55,15 @@ ggplasmid(
   name = "pSGNDM-5",
   layout = "circular",
   label_exclude_categories = "Other functions", # hide labels from this category only
-  max_labels = 18,                              # limit labels; all gene arrows still plot
+  max_labels = Inf,                             # show all eligible non-Other labels
   label_wrap_width = 16,                        # wrap long labels after about 16 characters
   label_text_size = 3.0,                        # label font size
+  label_anchor_radius = 1.12,                   # push labels a little away from the ring
   label_text_colour = "category",               # color label text by feature category
   label_line_colour = "category",               # color leader lines by feature category
   legend_position = "bottom",                   # place legends below the map
   legend_columns = 3,                           # feature-color legend columns
-  gc_legend_columns = 1,                        # GC legend columns
+  gc_legend_columns = 3,                        # GC legend in one row
   inner_radius = 0.30                           # smaller center hole leaves more label space
 )
 
@@ -240,10 +241,11 @@ ggplasmid(
   gc_legend_linewidth = 1.6,        # GC legend line thickness
   ruler_linewidth = 0.30,           # bp ruler circle/tick width
   label_text_size = 3.4,            # label font size
+  label_anchor_radius = 1.12,       # starting distance for outside labels
   label_text_colour = "category",   # "category" or a fixed color such as "black"
   legend_position = "bottom",       # "right", "bottom", "left", "top", or "none"
   legend_columns = 3,               # feature-color legend columns
-  gc_legend_columns = 1             # GC legend columns
+  gc_legend_columns = 3             # GC legend columns; 3 gives one row
 )
 ```
 
