@@ -20,6 +20,7 @@ plot_phage_map(
   palette = "default",
   gene_highlight = NULL,
   rows = 4,
+  genome_line_num = NULL,
   show_gc_skew = TRUE,
   show_labels = TRUE,
   label_unknown = FALSE,
@@ -115,6 +116,9 @@ category/color columns, used to override specific category colors.}
 
 \item{rows}{Number of rows for linear layout.}
 
+\item{genome_line_num}{Alias for \code{rows}. When supplied, it overrides
+\code{rows} and controls how many genome lines are drawn in linear layout.}
+
 \item{show_gc_skew}{Whether to draw GC-skew and GC-content tracks when
 sequence/skew data are available.}
 
@@ -157,8 +161,8 @@ labels need a small outward offset.}
 lanes, in circular plot radius units. Smaller values pack lanes tighter.
 When \code{NULL}, the step is calculated from label height.}
 
-\item{label_line_colour, label_linewidth, label_line_linetype}{Circular label
-leader line colour, width, and linetype.}
+\item{label_line_colour, label_linewidth, label_line_linetype}{Label leader
+line colour, width, and linetype.}
 
 \item{label_adjust}{Manual circular-label shifts. Use \code{\link[=label_adjust]{label_adjust()}}, a
 data frame with \code{label}, \code{hjust}, and \code{vjust} columns, or a list with those

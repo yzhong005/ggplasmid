@@ -1,7 +1,7 @@
-library(ggplasmid)
+library(ggplasmidZY)
 
-gbk_file <- system.file("extdata", "pSGNDM_5.gbk", package = "ggplasmid")
-fasta_file <- system.file("extdata", "pSGNDM_5.fasta", package = "ggplasmid")
+gbk_file <- system.file("extdata", "pSGNDM_5.gbk", package = "ggplasmidZY")
+fasta_file <- system.file("extdata", "pSGNDM_5.fasta", package = "ggplasmidZY")
 
 gbk_data <- read_plasmid_annotation(gbk = gbk_file)
 fasta_data <- read_plasmid_fasta(fasta_file)

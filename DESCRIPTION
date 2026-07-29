@@ -1,4 +1,4 @@
-Package: ggplasmid
+Package: ggplasmidZY
 Title: Plasmid-First Linear and Circular Maps with ggplot2
 Version: 0.0.0.9000
 Authors@R: c(
@@ -8,7 +8,7 @@ Author: Zhong Yang
 Maintainer: Zhong Yang <yzhong005@e.ntu.edu.sg>
 Description: Generate publication-quality genetic maps, with particular
     suitability for plasmids and bacteriophages. Built entirely within the
-    ggplot2 framework, ggplasmid supports both circular and linear plotting of
+    ggplot2 framework, ggplasmidZY supports both circular and linear plotting of
     annotated genetic features. Its intelligent label-placement algorithm
     automatically minimizes label overlap, making it effective for densely
     annotated multidrug-resistant plasmids containing numerous resistance genes,
@@ -28,7 +28,6 @@ Depends:
 Imports:
     ggplot2 (>= 3.5.0),
     ggsci,
-    ggrepel,
     grDevices,
     grid,
     tools,

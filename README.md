@@ -1,6 +1,6 @@
-# ggplasmid
+# ggplasmidZY
 
-`ggplasmid` is an R package for generating publication-quality genetic maps,
+`ggplasmidZY` is an R package for generating publication-quality genetic maps,
 with particular suitability for plasmids and bacteriophages. Built entirely
 within the `ggplot2` framework, it supports both circular and linear plotting of
 annotated genetic features. Its intelligent label-placement algorithm
@@ -22,10 +22,10 @@ Install the package directly from GitHub:
 install.packages("remotes")
 remotes::install_github("yzhong005/ggplasmid")
 
-library(ggplasmid)
+library(ggplasmidZY)
 ```
 
-`ggplot2`, `ggsci`, and `ggrepel` are installed automatically as package
+`ggplot2` and `ggsci` are installed automatically as package
 dependencies when needed.
 
 ## pSGNDM-5 Demo
@@ -43,8 +43,8 @@ water environmental source. *JAC-Antimicrobial Resistance*. 2022;4(4):dlac071.
 doi: [10.1093/jacamr/dlac071](https://doi.org/10.1093/jacamr/dlac071).
 
 ```r
-gbk_file <- system.file("extdata", "pSGNDM_5.gbk", package = "ggplasmid")
-fasta_file <- system.file("extdata", "pSGNDM_5.fasta", package = "ggplasmid")
+gbk_file <- system.file("extdata", "pSGNDM_5.gbk", package = "ggplasmidZY")
+fasta_file <- system.file("extdata", "pSGNDM_5.fasta", package = "ggplasmidZY")
 
 gbk_data <- read_gbk(gbk_file)
 fasta_data <- read_fasta(fasta_file)
@@ -98,7 +98,7 @@ ggplasmid(
   fasta = fasta_data,
   name = "pSGNDM-5",
   layout = "linear",
-  rows = 5,       # number of rows in the linear map
+  genome_line_num = 5, # number of genome lines in the linear map
   max_labels = 36 # label limit for the linear map
 )
 ```
