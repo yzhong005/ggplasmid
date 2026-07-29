@@ -1,0 +1,35 @@
+library(ggplasmid)
+
+gbk_file <- system.file("extdata", "pSGNDM_5.gbk", package = "ggplasmid")
+fasta_file <- system.file("extdata", "pSGNDM_5.fasta", package = "ggplasmid")
+
+gbk_data <- read_plasmid_annotation(gbk = gbk_file)
+fasta_data <- read_plasmid_fasta(fasta_file)
+if (interactive()) {
+  View(gbk_data)
+  View(fasta_data)
+}
+
+p_circular <- ggplasmid(
+  annotation = gbk_data,
+  fasta = fasta_data,
+  name = "pSGNDM-5",
+  layout = "circular",
+  max_labels = 14
+)
+p_circular
+
+p_linear <- ggplasmid(
+  annotation = gbk_data,
+  fasta = fasta_data,
+  name = "pSGNDM-5",
+  layout = "linear",
+  rows = 5,
+  max_labels = 36
+)
+p_linear
+
+# Data used by either plot are also available from the plot object.
+used_data <- plasmid_data(p_circular)
+names(used_data)
+used_data$fasta[c("name", "description", "length")]

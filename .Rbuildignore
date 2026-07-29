@@ -1,0 +1,9 @@
+^.*[.]Rproj$
+^\.Rproj\.user$
+^\.Rhistory$
+^\.git$
+^\.gitignore$
+^ggplasmid_package_development[.]Rcheck$
+^[^/]+[.]Rcheck$
+^[^/]+[.]tar[.]gz$
+^[^/]+[.]png$
