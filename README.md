@@ -60,7 +60,8 @@ ggplasmid(
   label_text_size = 3.0,                        # label font size
   label_anchor_radius = 1.12,                   # push labels a little away from the ring
   label_text_colour = "category",               # color label text by feature category
-  label_line_colour = "category",               # color leader lines by feature category
+  label_line_colour = "grey70",                 # neutral grey leader lines
+  label_line_linetype = "dashed",               # dashed leader lines
   legend_position = "bottom",                   # place legends below the map
   legend_columns = 3,                           # feature-color legend columns
   gc_legend_columns = 3,                        # GC legend in one row
@@ -243,6 +244,8 @@ ggplasmid(
   label_text_size = 3.4,            # label font size
   label_anchor_radius = 1.12,       # starting distance for outside labels
   label_text_colour = "category",   # "category" or a fixed color such as "black"
+  label_line_colour = "grey70",     # leader line color
+  label_line_linetype = "dashed",   # leader line style
   legend_position = "bottom",       # "right", "bottom", "left", "top", or "none"
   legend_columns = 3,               # feature-color legend columns
   gc_legend_columns = 3             # GC legend columns; 3 gives one row

@@ -34,8 +34,9 @@ plot_phage_map(
   label_anchor_radius = 1.07,
   label_lane_spacing = 0.24,
   label_lane_step = NULL,
-  label_line_colour = "grey45",
+  label_line_colour = "grey70",
   label_linewidth = 0.3,
+  label_line_linetype = "dashed",
   show_ruler = TRUE,
   ruler_major_bp = NULL,
   ruler_minor_bp = NULL,
@@ -155,8 +156,8 @@ labels need a small outward offset.}
 lanes, in circular plot radius units. Smaller values pack lanes tighter.
 When \code{NULL}, the step is calculated from label height.}
 
-\item{label_line_colour, label_linewidth}{Circular label leader line colour
-and width.}
+\item{label_line_colour, label_linewidth, label_line_linetype}{Circular label
+leader line colour, width, and linetype.}
 
 \item{show_ruler}{Whether to draw the circular clock/ruler track. Only used
 when \code{layout = "circular"}.}

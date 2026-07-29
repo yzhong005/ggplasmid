@@ -846,7 +846,8 @@ GeomPlasmidTextOverlay <- ggplot2::ggproto(
                         text_colour = "black", text_size = 3,
                         fontface = "plain", lineheight = 0.9,
                         segment_colour = "grey45",
-                        segment_linewidth = 0.25, na.rm = FALSE) {
+                        segment_linewidth = 0.25,
+                        segment_linetype = "solid", na.rm = FALSE) {
     grobs <- list()
 
     text_x <- data$npcx
@@ -946,6 +947,7 @@ GeomPlasmidTextOverlay <- ggplot2::ggproto(
           gp = grid::gpar(
             col = line_colour,
             lwd = segment_linewidth * 2.845276,
+            lty = segment_linetype,
             lineend = "round",
             linejoin = "round"
           )
@@ -991,7 +993,8 @@ geom_plasmid_text_overlay <- function(data, family = "sans",
                                       fontface = "plain",
                                       lineheight = 0.9,
                                       segment_colour = "grey45",
-                                      segment_linewidth = 0.25) {
+                                      segment_linewidth = 0.25,
+                                      segment_linetype = "solid") {
   if (!"line_colour" %in% names(data)) {
     data$line_colour <- NA_character_
   }
@@ -1032,6 +1035,7 @@ geom_plasmid_text_overlay <- function(data, family = "sans",
       lineheight = lineheight,
       segment_colour = segment_colour,
       segment_linewidth = segment_linewidth,
+      segment_linetype = segment_linetype,
       na.rm = TRUE
     )
   )
@@ -1249,8 +1253,9 @@ plot_circular_plasmid <- function(features, genome_length, name = NULL,
                                   label_anchor_radius = 1.07,
                                   label_lane_spacing = 0.24,
                                   label_lane_step = NULL,
-                                  label_line_colour = "grey45",
+                                  label_line_colour = "grey70",
                                   label_linewidth = 0.30,
+                                  label_line_linetype = "dashed",
                                   min_feature_bp = 1,
                                   show_ruler = TRUE,
                                   ruler_major_bp = NULL,
@@ -1486,7 +1491,8 @@ plot_circular_plasmid <- function(features, genome_length, name = NULL,
       fontface = "bold",
       lineheight = 0.9,
       segment_colour = label_line_colour,
-      segment_linewidth = label_linewidth
+      segment_linewidth = label_linewidth,
+      segment_linetype = label_line_linetype
     )
   }
 
@@ -1864,8 +1870,8 @@ plot_linear_plasmid <- function(features, genome_length, name = NULL, rows = 4,
 #' @param label_lane_step Optional direct radial step between circular label
 #'   lanes, in circular plot radius units. Smaller values pack lanes tighter.
 #'   When `NULL`, the step is calculated from label height.
-#' @param label_line_colour,label_linewidth Circular label leader line colour
-#'   and width.
+#' @param label_line_colour,label_linewidth,label_line_linetype Circular label
+#'   leader line colour, width, and linetype.
 #' @param min_feature_bp Minimum feature length to label.
 #' @param show_ruler Whether to draw the circular clock/ruler track. Only used
 #'   when `layout = "circular"`.
@@ -1946,8 +1952,9 @@ ggplasmid <- function(annotation = NULL, gbk = NULL, fasta = NULL, skew_table = 
                       label_anchor_radius = 1.07,
                       label_lane_spacing = 0.24,
                       label_lane_step = NULL,
-                      label_line_colour = "grey45",
+                      label_line_colour = "grey70",
                       label_linewidth = 0.30,
+                      label_line_linetype = "dashed",
                       min_feature_bp = 1,
                       show_ruler = TRUE,
                       ruler_major_bp = NULL, ruler_minor_bp = NULL,
@@ -2105,6 +2112,7 @@ ggplasmid <- function(annotation = NULL, gbk = NULL, fasta = NULL, skew_table = 
       label_lane_step = label_lane_step,
       label_line_colour = label_line_colour,
       label_linewidth = label_linewidth,
+      label_line_linetype = label_line_linetype,
       min_feature_bp = min_feature_bp,
       show_ruler = show_ruler,
       ruler_major_bp = ruler_major_bp,
@@ -2262,8 +2270,9 @@ plot_phage_map <- function(annotation = NULL, gbk = NULL, fasta = NULL,
                            label_anchor_radius = 1.07,
                            label_lane_spacing = 0.24,
                            label_lane_step = NULL,
-                           label_line_colour = "grey45",
+                           label_line_colour = "grey70",
                            label_linewidth = 0.30,
+                           label_line_linetype = "dashed",
                            show_ruler = TRUE,
                            ruler_major_bp = NULL, ruler_minor_bp = NULL,
                            gene_radius = 1,
@@ -2331,6 +2340,7 @@ plot_phage_map <- function(annotation = NULL, gbk = NULL, fasta = NULL,
     label_lane_step = label_lane_step,
     label_line_colour = label_line_colour,
     label_linewidth = label_linewidth,
+    label_line_linetype = label_line_linetype,
     min_feature_bp = min_feature_bp,
     show_ruler = show_ruler,
     ruler_major_bp = ruler_major_bp,
