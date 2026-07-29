@@ -1081,7 +1081,7 @@ circular_feature_label_overlay <- function(label_data, genome_length,
                                            label_lane_step = NULL,
                                            label_text_size = 3.4,
                                            label_text_colour = "black",
-                                           label_line_colour = "grey45",
+                                           label_line_colour = "grey70",
                                            label_y_max = 1.95,
                                            feature_colors = NULL) {
   theta <- (label_data$xmid %% genome_length) / genome_length * 360
@@ -1122,6 +1122,7 @@ circular_feature_label_overlay <- function(label_data, genome_length,
   text <- text[keep]
   label_colours <- label_colours[keep]
   line_colours <- line_colours[keep]
+  theta <- theta[keep]
   if (!nrow(label_position)) {
     return(data.frame(
       npcx = numeric(),
@@ -1150,6 +1151,19 @@ circular_feature_label_overlay <- function(label_data, genome_length,
       stringsAsFactors = FALSE
     ))
   }
+
+  label_dims <- label_box_dimensions(text, label_text_size)
+  line_x <- label_position$npcx
+  line_y <- label_position$npcy
+  top_bottom <- abs(sin(theta * pi / 180)) < 0.20
+  top_label <- top_bottom & cos(theta * pi / 180) > 0
+  bottom_label <- top_bottom & cos(theta * pi / 180) < 0
+  edge_gap <- 0.002
+  line_y[top_label] <- label_position$npcy[top_label] -
+    label_dims$height[top_label] / 2 - edge_gap
+  line_y[bottom_label] <- label_position$npcy[bottom_label] +
+    label_dims$height[bottom_label] / 2 + edge_gap
+
   data.frame(
     npcx = label_position$npcx,
     npcy = label_position$npcy,
@@ -1169,10 +1183,10 @@ circular_feature_label_overlay <- function(label_data, genome_length,
     leader_y = NA_real_,
     x0 = NA_real_,
     y0 = NA_real_,
-    x1 = label_position$npcx,
-    y1 = label_position$npcy,
-    x2 = label_position$npcx,
-    y2 = label_position$npcy,
+    x1 = line_x,
+    y1 = line_y,
+    x2 = line_x,
+    y2 = line_y,
     line_colour = line_colours,
     stringsAsFactors = FALSE
   )
