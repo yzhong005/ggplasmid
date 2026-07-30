@@ -37,6 +37,10 @@ p_linear <- ggplasmid(
   linear_row_spacing = 4.0,
   linear_label_allow_gene_line_crossing = FALSE,
   label_text_angle = 0,
+  gc_skew_height = 0.28,
+  gc_content_height = 0.14,
+  gc_content_linewidth = 0.8,
+  gc_legend_columns = 1,
   label_text_colour = "category",
   label_line_colour = "category",
   legend_position = "right"
@@ -57,6 +61,10 @@ p_linear_45 <- ggplasmid(
   linear_label_allow_gene_line_crossing = FALSE,
   label_line_angle = 45,
   label_text_angle = 0,
+  gc_skew_height = 0.28,
+  gc_content_height = 0.14,
+  gc_content_linewidth = 0.8,
+  gc_legend_columns = 1,
   label_text_colour = "category",
   label_line_colour = "category",
   legend_position = "right"

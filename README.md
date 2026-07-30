@@ -39,23 +39,23 @@ library(ggplasmidZY)
 gbk_file <- system.file("extdata", "pSGNDM_5.gbk", package = "ggplasmidZY")
 fasta_file <- system.file("extdata", "pSGNDM_5.fasta", package = "ggplasmidZY")
 
-annotation <- read_plasmid_annotation(gbk = gbk_file)
-fasta <- read_plasmid_fasta(fasta_file)
+annotation <- read_plasmid_annotation(gbk = gbk_file) # parsed gene annotation
+fasta <- read_plasmid_fasta(fasta_file)              # genome sequence
 ```
 
 ### Circular map
 
 ```r
 p_circular <- ggplasmid(
-  annotation = annotation,
-  fasta = fasta,
-  name = "pSGNDM-5",
-  layout = "circular",
-  label_exclude_categories = "Other functions",
-  max_labels = 24,
-  label_text_colour = "category",
-  label_line_colour = "category",
-  legend_position = "right"
+  annotation = annotation,                    # gene features
+  fasta = fasta,                              # sequence for GC tracks
+  name = "pSGNDM-5",                          # plot title/name
+  layout = "circular",                        # circular map
+  label_exclude_categories = "Other functions", # hide these labels only
+  max_labels = 24,                             # maximum labels to draw
+  label_text_colour = "category",             # color label text by category
+  label_line_colour = "category",             # color leader lines by category
+  legend_position = "right"                   # put legends beside the map
 )
 
 p_circular
@@ -69,24 +69,30 @@ connector direction.
 
 ```r
 p_linear <- ggplasmid(
-  annotation = annotation,
-  fasta = fasta,
-  name = "pSGNDM-5",
-  layout = "linear",
-  plot_line_num = 4,
-  max_labels = 36,
-  linear_label_wrap_width = 18,
-  linear_label_max_lines = 2,
-  linear_row_spacing = 4.0,
-  linear_label_allow_gene_line_crossing = FALSE,
-  label_text_angle = 0,
-  label_text_colour = "category",
-  label_line_colour = "category",
-  legend_position = "right"
+  annotation = annotation,                    # gene features
+  fasta = fasta,                              # sequence for GC tracks
+  name = "pSGNDM-5",                          # plot title/name
+  layout = "linear",                          # linear map
+  plot_line_num = 4,                           # number of genome lines
+  max_labels = 36,                             # maximum labels to draw
+  linear_label_wrap_width = 18,                # approximate label width
+  linear_label_max_lines = 2,                  # never use more than two rows
+  linear_row_spacing = 4.0,                    # gap between genome lines
+  linear_label_allow_gene_line_crossing = FALSE, # protect line above
+  label_text_angle = 0,                        # keep label text horizontal
+  gc_skew_height = 0.28,                       # taller GC-skew track
+  gc_content_height = 0.14,                    # taller GC-content track
+  gc_content_linewidth = 0.8,                  # thicker GC-content line
+  gc_legend_columns = 1,                       # compact GC legend
+  label_text_colour = "category",             # color label text by category
+  label_line_colour = "category",             # color leader lines by category
+  legend_position = "right"                   # put legends beside the map
 )
 
 p_linear
 ```
+
+![pSGNDM-5 four-line linear map with GC tracks](man/figures/README-pSGNDM-5-linear.png)
 
 ### Linear map with 45-degree connectors
 
@@ -95,21 +101,25 @@ label text horizontal.
 
 ```r
 p_linear_45 <- ggplasmid(
-  annotation = annotation,
-  fasta = fasta,
-  name = "pSGNDM-5",
-  layout = "linear",
-  plot_line_num = 4,
-  max_labels = 36,
-  linear_label_wrap_width = 18,
-  linear_label_max_lines = 2,
-  linear_row_spacing = 4.0,
-  linear_label_allow_gene_line_crossing = FALSE,
-  label_line_angle = 45,
-  label_text_angle = 0,
-  label_text_colour = "category",
-  label_line_colour = "category",
-  legend_position = "right"
+  annotation = annotation,                    # gene features
+  fasta = fasta,                              # sequence for GC tracks
+  name = "pSGNDM-5",                          # plot title/name
+  layout = "linear",                          # linear map
+  plot_line_num = 4,                           # number of genome lines
+  max_labels = 36,                             # maximum labels to draw
+  linear_label_wrap_width = 18,                # approximate label width
+  linear_label_max_lines = 2,                  # never use more than two rows
+  linear_row_spacing = 4.0,                    # gap between genome lines
+  linear_label_allow_gene_line_crossing = FALSE, # protect line above
+  label_line_angle = 45,                       # diagonal connector direction
+  label_text_angle = 0,                        # keep label text horizontal
+  gc_skew_height = 0.28,                       # taller GC-skew track
+  gc_content_height = 0.14,                    # taller GC-content track
+  gc_content_linewidth = 0.8,                  # thicker GC-content line
+  gc_legend_columns = 1,                       # compact GC legend
+  label_text_colour = "category",             # color label text by category
+  label_line_colour = "category",             # color leader lines by category
+  legend_position = "right"                   # put legends beside the map
 )
 
 p_linear_45
