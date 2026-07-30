@@ -37,6 +37,10 @@ This public pSGNDM-5 reference plasmid is 84,257 bp long. The source is Zhong
 Y, Guo S, Schlundt J, Kwa AL. *JAC-Antimicrobial Resistance*. 2022;4(4):dlac071.
 [10.1093/jacamr/dlac071](https://doi.org/10.1093/jacamr/dlac071).
 
+The demo explicitly uses the `ggsci` `"npg"` palette. Replace `"npg"` with
+`"default"`, `"aaas"`, `"lancet"`, `"jco"`, `"ucscgb"`, `"d3"`, or `"igv"`
+to try another palette.
+
 ```r
 library(ggplasmidZY)
 
@@ -55,6 +59,7 @@ p_circular <- ggplasmid(
   fasta = fasta,                              # sequence for GC tracks
   name = "pSGNDM-5",                          # plot title/name
   layout = "circular",                        # circular map
+  palette = "npg",                            # choose the feature palette
   label_exclude_categories = "Other functions", # hide these labels only
   max_labels = 24,                             # maximum labels to draw
   label_text_colour = "category",             # color label text by category
@@ -79,6 +84,7 @@ p_linear <- ggplasmid(
   fasta = fasta,                              # sequence for GC tracks
   name = "pSGNDM-5",                          # plot title/name
   layout = "linear",                          # linear map
+  palette = "npg",                            # choose the feature palette
   plot_line_num = 4,                           # number of genome lines
   max_labels = 36,                             # maximum labels to draw
   linear_label_wrap_width = 18,                # approximate label width
@@ -196,8 +202,8 @@ Most plot geometry and text settings have defaults but can be tuned directly:
 
 ```r
 ggplasmid(
-  annotation = gbk_data,
-  fasta = fasta_data,
+  annotation = annotation,
+  fasta = fasta,
   name = "pSGNDM-5",
   palette = "npg", # ggsci palette; try "aaas", "lancet", "jco", "igv", etc.
   gene_highlight = gene_highlight(
@@ -223,17 +229,18 @@ ggplasmid(
 )
 ```
 
-`gene_highlight` changes only the categories you name, and the remaining
-categories keep the selected palette. You can also pass a data frame with
-`category` and `color` columns. Circular `*_radius` settings are distances from
-the center of the plot to that ring.
+`palette` chooses the overall category palette. `gene_highlight` changes only
+the categories you name, and the remaining categories keep the selected
+palette. Use a named vector or a data frame with `category` and `color` columns
+when you want to choose exact colors yourself. Circular `*_radius` settings
+are distances from the center of the plot to that ring.
 
 You can also add highlights after creating the plot:
 
 ```r
 p <- ggplasmid(
-  annotation = gbk_data,
-  fasta = fasta_data,
+  annotation = annotation,
+  fasta = fasta,
   name = "pSGNDM-5",
   palette = "npg"
 )
@@ -248,8 +255,8 @@ For a right-side legend, keep it vertical or use two compact columns:
 
 ```r
 ggplasmid(
-  annotation = gbk_data,
-  fasta = fasta_data,
+  annotation = annotation,
+  fasta = fasta,
   name = "pSGNDM-5",
   legend_position = "right",
   legend_columns = 2,
@@ -260,8 +267,8 @@ ggplasmid(
 `read_plasmid_fasta()` also includes a FASTA-formatted text column:
 
 ```r
-fasta_data$fasta[[1]]
-format_plasmid_fasta(fasta_data, width = 70)
+fasta$fasta[[1]]
+format_plasmid_fasta(fasta, width = 70)
 ```
 
 For table input, use `read_annotation_table()` when you want the table reader
