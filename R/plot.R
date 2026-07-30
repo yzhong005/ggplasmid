@@ -1467,7 +1467,8 @@ place_radial_label_boxes <- function(x, genome_length, text, right,
                                      label_text_size = 3.4,
                                      priority = NULL,
                                      lower = 0.04, upper = 0.96,
-                                     y_max = 1.95) {
+                                     y_max = 1.95,
+                                     gene_outer_radius = NULL) {
   n <- length(x)
   if (!n) {
     return(data.frame(npcx = numeric(), npcy = numeric(), lane = integer()))
@@ -1522,6 +1523,63 @@ place_radial_label_boxes <- function(x, genome_length, text, right,
   lane <- 0L
   max_lanes <- max(32L, n * 4L)
 
+  move_box_outside_gene_ring <- function(text_x, text_y, i) {
+    if (is.null(gene_outer_radius) ||
+        length(gene_outer_radius) != 1L ||
+        !is.finite(gene_outer_radius)) {
+      return(c(x = text_x, y = text_y))
+    }
+    ring <- radial_npc(
+      x[[i]],
+      y = gene_outer_radius,
+      genome_length = genome_length,
+      y_max = y_max,
+      inner_radius = inner_radius
+    )
+    ring_radius <- sqrt(
+      (ring$npcx[[1L]] - 0.5)^2 + (ring$npcy[[1L]] - 0.5)^2
+    )
+    theta_i <- theta[[i]]
+    outward <- c(sin(theta_i), cos(theta_i))
+    hjust_i <- label_hjust[[i]]
+    box_distance <- function(delta) {
+      box <- label_box_frame(
+        text_x + outward[[1L]] * delta,
+        text_y + outward[[2L]] * delta,
+        dims$width[[i]],
+        dims$height[[i]],
+        hjust = hjust_i
+      )
+      corners <- rbind(
+        c(box$xmin, box$ymin),
+        c(box$xmin, box$ymax),
+        c(box$xmax, box$ymin),
+        c(box$xmax, box$ymax)
+      )
+      min(sqrt((corners[, 1] - 0.5)^2 + (corners[, 2] - 0.5)^2))
+    }
+    target <- ring_radius + 0.004
+    if (box_distance(0) >= target) {
+      return(c(x = text_x, y = text_y))
+    }
+    upper_delta <- 0.01
+    while (box_distance(upper_delta) < target && upper_delta < 0.50) {
+      upper_delta <- upper_delta * 2
+    }
+    if (box_distance(upper_delta) < target) {
+      delta <- upper_delta
+    } else {
+      delta <- stats::uniroot(
+        function(value) box_distance(value) - target,
+        interval = c(0, upper_delta)
+      )$root
+    }
+    c(
+      x = text_x + outward[[1L]] * delta,
+      y = text_y + outward[[2L]] * delta
+    )
+  }
+
   candidate_box <- function(i, lane) {
     position <- radial_npc(
       x[[i]],
@@ -1541,6 +1599,9 @@ place_radial_label_boxes <- function(x, genome_length, text, right,
       text_x <- text_x + sin(theta[[i]]) * vertical_shift
       text_y <- text_y + cos(theta[[i]]) * vertical_shift
     }
+    shifted <- move_box_outside_gene_ring(text_x, text_y, i)
+    text_x <- shifted[["x"]]
+    text_y <- shifted[["y"]]
     list(
       x = text_x,
       y = text_y,
@@ -1932,6 +1993,7 @@ circular_feature_label_overlay <- function(label_data, genome_length,
                                            label_line_colour = "grey70",
                                            label_adjust = NULL,
                                            label_y_max = 1.95,
+                                           gene_outer_radius = NULL,
                                            feature_colors = NULL) {
   theta <- (label_data$xmid %% genome_length) / genome_length * 360
   right <- theta < 180
@@ -1963,7 +2025,8 @@ circular_feature_label_overlay <- function(label_data, genome_length,
     label_lane_step = label_lane_step,
     label_text_size = label_text_size,
     priority = label_data$priority,
-    y_max = label_y_max
+    y_max = label_y_max,
+    gene_outer_radius = gene_outer_radius
   )
   keep <- is.finite(label_position$npcx) & is.finite(label_position$npcy)
   label_position <- label_position[keep, , drop = FALSE]
@@ -2341,6 +2404,7 @@ plot_circular_plasmid <- function(features, genome_length, name = NULL,
       label_line_colour = label_line_colour,
       label_adjust = label_adjust,
       label_y_max = y_limit,
+      gene_outer_radius = gene_radius + gene_height / 2,
       feature_colors = plot_colors
     )
     label_bounds <- label_overlay_npc_bounds(label_overlay)

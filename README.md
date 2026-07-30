@@ -59,7 +59,9 @@ p_circular <- ggplasmid(
   layout = "circular",                        # circular map
   palette = "default",                        # can change to ggsci palette
   label_exclude_categories = "Other functions", # hide these labels only
-  label_anchor_radius = 1.14,                  # keep labels outside the gene ring
+  label_anchor_radius = 1.07,                  # start labels close to the gene ring
+  label_line_length = 0.04,                    # small initial connector gap
+  gene_height = 0.14,                          # thicker gene arrows
   label_text_size = 4.0,                       # larger bold labels
   label_linewidth = 0.55,                      # thicker label connectors
   label_line_colour = "grey70",               # light-gray leader lines
@@ -71,7 +73,7 @@ p_circular <- ggplasmid(
 p_circular
 ```
 
-![pSGNDM-5 circular map](man/figures/README-pSGNDM-5-bottom-anchor-bold-dashed.png)
+![pSGNDM-5 circular map](man/figures/README-pSGNDM-5-bottom-balanced.png)
 
 ### Linear map with default connector direction
 
