@@ -2000,7 +2000,7 @@ circular_feature_label_overlay <- function(label_data, genome_length,
   theta_rad <- theta * pi / 180
   top_bottom <- abs(sin(theta_rad)) < 0.20
   edge_gap <- 0.008
-  edge_shift <- label_dims$height * 0.65 + edge_gap
+  edge_shift <- label_dims$height * 0.50 + edge_gap
   line_x[top_bottom] <- label_position$npcx[top_bottom] -
     sin(theta_rad[top_bottom]) * edge_shift[top_bottom]
   line_y[top_bottom] <- label_position$npcy[top_bottom] -
