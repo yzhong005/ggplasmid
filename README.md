@@ -28,7 +28,94 @@ library(ggplasmidZY)
 `ggplot2` and `ggsci` are installed automatically as package
 dependencies when needed.
 
-## pSGNDM-5 Demo
+## Quick start
+
+The package includes a public pSGNDM-5 plasmid example. Copy this block into
+RStudio to load the example data:
+
+```r
+library(ggplasmidZY)
+
+gbk_file <- system.file("extdata", "pSGNDM_5.gbk", package = "ggplasmidZY")
+fasta_file <- system.file("extdata", "pSGNDM_5.fasta", package = "ggplasmidZY")
+
+annotation <- read_plasmid_annotation(gbk = gbk_file)
+fasta <- read_plasmid_fasta(fasta_file)
+```
+
+### Circular map
+
+```r
+p_circular <- ggplasmid(
+  annotation = annotation,
+  fasta = fasta,
+  name = "pSGNDM-5",
+  layout = "circular",
+  label_exclude_categories = "Other functions",
+  max_labels = 24,
+  label_text_colour = "category",
+  label_line_colour = "category",
+  legend_position = "right"
+)
+
+p_circular
+```
+
+### Linear map with default connector direction
+
+This is the recommended starting layout. It uses four genome lines and
+horizontal label text. Leaving `label_line_angle` out uses the default vertical
+connector direction.
+
+```r
+p_linear <- ggplasmid(
+  annotation = annotation,
+  fasta = fasta,
+  name = "pSGNDM-5",
+  layout = "linear",
+  plot_line_num = 4,
+  max_labels = 36,
+  linear_label_wrap_width = 18,
+  linear_label_max_lines = 2,
+  linear_row_spacing = 4.0,
+  linear_label_allow_gene_line_crossing = FALSE,
+  label_text_angle = 0,
+  label_text_colour = "category",
+  label_line_colour = "category",
+  legend_position = "right"
+)
+
+p_linear
+```
+
+### Linear map with 45-degree connectors
+
+Use `label_line_angle` to change the connector direction while keeping the
+label text horizontal.
+
+```r
+p_linear_45 <- ggplasmid(
+  annotation = annotation,
+  fasta = fasta,
+  name = "pSGNDM-5",
+  layout = "linear",
+  plot_line_num = 4,
+  max_labels = 36,
+  linear_label_wrap_width = 18,
+  linear_label_max_lines = 2,
+  linear_row_spacing = 4.0,
+  linear_label_allow_gene_line_crossing = FALSE,
+  label_line_angle = 45,
+  label_text_angle = 0,
+  label_text_colour = "category",
+  label_line_colour = "category",
+  legend_position = "right"
+)
+
+p_linear_45
+```
+
+## pSGNDM-5 reference
 
 The package includes a real 84,257 bp pSGNDM-5 example plasmid:
 
@@ -42,93 +129,21 @@ carbapenem-resistant *Escherichia coli* ST410 strain isolated from a natural
 water environmental source. *JAC-Antimicrobial Resistance*. 2022;4(4):dlac071.
 doi: [10.1093/jacamr/dlac071](https://doi.org/10.1093/jacamr/dlac071).
 
-```r
-gbk_file <- system.file("extdata", "pSGNDM_5.gbk", package = "ggplasmidZY")
-fasta_file <- system.file("extdata", "pSGNDM_5.fasta", package = "ggplasmidZY")
-
-gbk_data <- read_gbk(gbk_file)
-fasta_data <- read_fasta(fasta_file)
-
-ggplasmid(
-  annotation = gbk_data,
-  fasta = fasta_data,
-  name = "pSGNDM-5",
-  layout = "circular",
-  label_exclude_categories = "Other functions", # hide labels from this category only
-  max_labels = Inf,                             # show all eligible non-Other labels
-  label_wrap_width = 16,                        # wrap long labels after about 16 characters
-  label_text_size = 3.0,                        # label font size
-  label_anchor_radius = 1.12,                   # push labels a little away from the ring
-  label_text_colour = "category",               # color label text by feature category
-  label_line_colour = "grey70",                 # neutral grey leader lines
-  label_line_linetype = "dashed",               # dashed leader lines
-  legend_position = "bottom",                   # place legends below the map
-  legend_columns = 3,                           # feature-color legend columns
-  gc_legend_columns = 3,                        # GC legend in one row
-  inner_radius = 0.30                           # smaller center hole leaves more label space
-)
-
-View(gbk_data)    # parsed GenBank feature data frame
-View(fasta_data)  # FASTA record table with sequence and length
-```
-
 ![pSGNDM-5 circular map](man/figures/README-pSGNDM-5.png)
 
-`gbk_data` is the parsed GenBank feature data frame. `fasta_data` is a data
-frame with the FASTA record name, description, sequence, and length. The exact
-data used by an existing plot can also be retrieved with `plasmid_data(p)`.
+The quick-start examples above use the packaged GenBank and FASTA files. The
+parsed data are available as `annotation` and `fasta`, and the data used by an
+existing plot can be retrieved with `plasmid_data(p)`. Set
+`label_unknown = TRUE` to include unknown or hypothetical gene labels.
 
-Use more labels while exploring:
-
-```r
-ggplasmid(
-  annotation = gbk_data,
-  fasta = fasta_data,
-  name = "pSGNDM-5",
-  layout = "circular",
-  label_unknown = TRUE # also label unknown/hypothetical genes
-)
-```
-
-Draw the same plasmid as a linear map:
-
-```r
-ggplasmid(
-  annotation = gbk_data,
-  fasta = fasta_data,
-  name = "pSGNDM-5",
-  layout = "linear",
-  plot_line_num = 4, # number of genome lines in the linear map
-  max_labels = 36, # label limit for the linear map
-  linear_label_wrap_width = 18, # shorter labels before folding to two rows
-  linear_label_max_lines = 2, # never use more than two text rows
-  linear_row_spacing = 4.0, # vertical distance between genome lines
-  linear_label_allow_gene_line_crossing = FALSE, # keep labels below the row above
-  label_line_angle = 90, # 90 is vertical; 45 gives diagonal leaders
-  label_text_angle = 0, # horizontal label text
-  label_text_colour = "category",
-  label_line_colour = "category",
-  legend_position = "right"
-)
-```
+## Linear label placement
 
 Linear labels are placed row by row from left to right. A label first uses the
-closest available position above its gene, then moves through compact outer
-layers while staying below the gene line of the row above. With the default
+closest available position beside its gene, then moves through compact outer
+layers while staying below the gene line of the row above. With
 `linear_label_allow_gene_line_crossing = FALSE`, labels that cannot fit below
 that boundary are omitted. The number and names of omitted labels are available
-with `plasmid_data(p)$linear_label_summary`. Set
-`linear_label_line_angle = 45` and `linear_label_text_angle = 0` for diagonal
-leaders with horizontal text. When `linear_label_text_angle` is a nonzero
-number, it rotates the text and labels are packed rightward first, then upward
-when the current height is full. If that angle cannot place all labels,
-horizontal and vertical fallback angles are tested and the best-fitting angle
-is used. The first available label lane sits directly
-beside the gene without a leader; a leader is drawn only when a label is moved
-to a farther lane or manually shifted. Its endpoint is recalculated at the
-near edge of the text, including when the text is rotated. Non-horizontal
-labels are left-aligned from that gene-to-label ray so their x position stays
-aligned with the gene center.
+with `plasmid_data(p)$linear_label_summary`.
 
 ## Your Own GenBank Input
 
