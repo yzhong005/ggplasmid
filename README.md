@@ -61,16 +61,16 @@ p_circular <- ggplasmid(
   label_exclude_categories = "Other functions", # hide these labels only
   label_text_size = 4.0,                       # larger bold labels
   label_linewidth = 0.55,                      # thicker label connectors
-  label_line_linetype = "solid",              # connect directly to labels
+  label_line_colour = "grey70",               # light-gray leader lines
+  label_line_linetype = "dashed",             # dashed leader lines
   label_text_colour = "category",             # color label text by category
-  label_line_colour = "category",             # color leader lines by category
   legend_position = "bottom"                  # put legends below the map
 )
 
 p_circular
 ```
 
-![pSGNDM-5 circular map](man/figures/README-pSGNDM-5-bottom-bold.png)
+![pSGNDM-5 circular map](man/figures/README-pSGNDM-5-bottom-bold-dashed.png)
 
 ### Linear map with default connector direction
 
