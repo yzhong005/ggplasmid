@@ -1,6 +1,6 @@
 Package: ggplasmidZY
 Title: Plasmid-First Linear and Circular Maps with ggplot2
-Version: 0.0.0.9000
+Version: 0.1.0
 Authors@R: c(
     person("Zhong", "Yang", role = c("aut", "cre"), email = "yzhong005@e.ntu.edu.sg")
   )
