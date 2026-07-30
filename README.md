@@ -33,6 +33,10 @@ dependencies when needed.
 The package includes a public pSGNDM-5 plasmid example. Copy this block into
 RStudio to load the example data:
 
+This public pSGNDM-5 reference plasmid is 84,257 bp long. The source is Zhong
+Y, Guo S, Schlundt J, Kwa AL. *JAC-Antimicrobial Resistance*. 2022;4(4):dlac071.
+[10.1093/jacamr/dlac071](https://doi.org/10.1093/jacamr/dlac071).
+
 ```r
 library(ggplasmidZY)
 
@@ -60,10 +64,6 @@ p_circular <- ggplasmid(
 
 p_circular
 ```
-
-This public pSGNDM-5 reference plasmid is 84,257 bp long. The source is Zhong
-Y, Guo S, Schlundt J, Kwa AL. *JAC-Antimicrobial Resistance*. 2022;4(4):dlac071.
-[10.1093/jacamr/dlac071](https://doi.org/10.1093/jacamr/dlac071).
 
 ![pSGNDM-5 circular map](man/figures/README-pSGNDM-5.png)
 
