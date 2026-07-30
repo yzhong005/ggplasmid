@@ -57,7 +57,6 @@ p_circular <- ggplasmid(
   layout = "circular",                        # circular map
   palette = "default",                        # can change to ggsci palette
   label_exclude_categories = "Other functions", # hide these labels only
-  max_labels = 24,                             # maximum labels to draw
   label_text_colour = "category",             # color label text by category
   label_line_colour = "category",             # color leader lines by category
   legend_position = "right"                   # put legends beside the map
