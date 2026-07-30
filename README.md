@@ -98,10 +98,37 @@ ggplasmid(
   fasta = fasta_data,
   name = "pSGNDM-5",
   layout = "linear",
-  genome_line_num = 5, # number of genome lines in the linear map
-  max_labels = 36 # label limit for the linear map
+  plot_line_num = 4, # number of genome lines in the linear map
+  max_labels = 36, # label limit for the linear map
+  linear_label_wrap_width = 18, # shorter labels before folding to two rows
+  linear_label_max_lines = 2, # never use more than two text rows
+  linear_row_spacing = 4.0, # vertical distance between genome lines
+  linear_label_allow_gene_line_crossing = FALSE, # keep labels below the row above
+  label_line_angle = 90, # 90 is vertical; 45 gives diagonal leaders
+  label_text_angle = 0, # horizontal label text
+  label_text_colour = "category",
+  label_line_colour = "category",
+  legend_position = "right"
 )
 ```
+
+Linear labels are placed row by row from left to right. A label first uses the
+closest available position above its gene, then moves through compact outer
+layers while staying below the gene line of the row above. With the default
+`linear_label_allow_gene_line_crossing = FALSE`, labels that cannot fit below
+that boundary are omitted. The number and names of omitted labels are available
+with `plasmid_data(p)$linear_label_summary`. Set
+`linear_label_line_angle = 45` and `linear_label_text_angle = 0` for diagonal
+leaders with horizontal text. When `linear_label_text_angle` is a nonzero
+number, it rotates the text and labels are packed rightward first, then upward
+when the current height is full. If that angle cannot place all labels,
+horizontal and vertical fallback angles are tested and the best-fitting angle
+is used. The first available label lane sits directly
+beside the gene without a leader; a leader is drawn only when a label is moved
+to a farther lane or manually shifted. Its endpoint is recalculated at the
+near edge of the text, including when the text is rotated. Non-horizontal
+labels are left-aligned from that gene-to-label ray so their x position stays
+aligned with the gene center.
 
 ## Your Own GenBank Input
 
@@ -243,6 +270,23 @@ ggplasmid(annotation = gbk_data, fasta = fasta_data,
                               vjust = -0.03))
 ```
 
+For linear maps, the same adjustment can target a gene ID and moves the label
+and its connector together:
+
+```r
+linear_adjustments <- data.frame(
+  gene_id = "tetR",
+  hjust = 0.20,
+  vjust = 0.10
+)
+
+p_linear <- ggplasmid(annotation = gbk_data, fasta = fasta_data,
+                       name = "pSGNDM-5", layout = "linear",
+                       plot_line_num = 5,
+                       label_adjust = linear_adjustments)
+plasmid_data(p_linear)$linear_label_summary
+```
+
 If Windows reports a font database warning, keep the default portable font or
 choose an installed family:
 
@@ -269,7 +313,7 @@ ggplasmid(
     "Replication" = "#2166AC"
   ),
   gene_border_linewidth = 0.35,     # outline width around gene arrows
-  gene_arrow_head_fraction = 0.45,  # arrow-head length as a fraction of gene height
+  gene_arrow_head_fraction = 0.45,  # max arrow-head fraction of each feature
   inner_radius = 0.30,              # center hole size for circular layout
   gc_skew_radius = 0.80,            # distance from center to GC-skew ring
   gc_content_radius = 0.68,         # distance from center to GC-content line

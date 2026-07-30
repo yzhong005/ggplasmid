@@ -21,6 +21,7 @@ plot_phage_map(
   gene_highlight = NULL,
   rows = 4,
   genome_line_num = NULL,
+  plot_line_num = NULL,
   show_gc_skew = TRUE,
   show_labels = TRUE,
   label_unknown = FALSE,
@@ -35,6 +36,13 @@ plot_phage_map(
   label_anchor_radius = 1.07,
   label_lane_spacing = 0.24,
   label_lane_step = NULL,
+  linear_label_offset = 0.06,
+  linear_label_lane_step = NULL,
+  linear_label_allow_gene_line_crossing = FALSE,
+  linear_label_line_angle = 90,
+  linear_label_text_angle = 0,
+  label_line_angle = NULL,
+  label_text_angle = NULL,
   label_line_colour = "grey70",
   label_linewidth = 0.3,
   label_line_linetype = "dashed",
@@ -47,13 +55,14 @@ plot_phage_map(
   gene_linewidth = NULL,
   gene_border_linewidth = NULL,
   gene_arrow_head_bp = NULL,
-  gene_arrow_head_fraction = 0.55,
+  gene_arrow_head_fraction = NULL,
+  linear_row_spacing = 4,
   gene_gap_bp = NULL,
   gc_skew_radius = 0.78,
   gc_skew_height = NULL,
   gc_content_radius = 0.67,
   gc_content_height = NULL,
-  gc_content_linewidth = 0.28,
+  gc_content_linewidth = NULL,
   gc_legend_linewidth = 1.8,
   ruler_minor_tick = 0.015,
   ruler_major_tick = 0.035,
@@ -64,6 +73,8 @@ plot_phage_map(
   sequence_linewidth = 0.55,
   label_text_size = NULL,
   label_text_colour = "black",
+  linear_label_wrap_width = 18L,
+  linear_label_max_lines = 2L,
   row_label_text_size = 3.4,
   ruler_text_size = 2.25,
   center_text_size = 4.3,
@@ -116,8 +127,8 @@ category/color columns, used to override specific category colors.}
 
 \item{rows}{Number of rows for linear layout.}
 
-\item{genome_line_num}{Alias for \code{rows}. When supplied, it overrides
-\code{rows} and controls how many genome lines are drawn in linear layout.}
+\item{genome_line_num, plot_line_num}{Aliases for \code{rows}. When supplied,
+\code{genome_line_num} overrides \code{rows}, and \code{plot_line_num} overrides both.}
 
 \item{show_gc_skew}{Whether to draw GC-skew and GC-content tracks when
 sequence/skew data are available.}
@@ -161,12 +172,56 @@ labels need a small outward offset.}
 lanes, in circular plot radius units. Smaller values pack lanes tighter.
 When \code{NULL}, the step is calculated from label height.}
 
+\item{linear_label_offset}{Vertical gap between linear gene arrows and the
+first label lane.}
+
+\item{linear_label_lane_step}{Optional tuning value for linear label spacing.
+This is the distance moved along each connector direction; larger values leave
+more space between layers. Linear labels are checked against other labels on
+the same genome row and remain below the gene line of the row above.}
+
+\item{linear_label_allow_gene_line_crossing}{Whether a linear label may be
+pushed above the gene line of the row above when no free lane remains. The
+default \code{FALSE} removes that label and records it in
+\code{plasmid_data(plot)$linear_label_summary}.}
+
+\item{linear_label_wrap_width}{Number of characters per line for linear labels
+before the maximum-line rule is applied. The default is code{18} to keep
+linear labels compact.}
+
+\item{linear_label_max_lines}{Maximum number of text rows for a linear gene
+label. The default is \code{2}; excess wrapped text is folded into the final
+row.}
+
+\item{linear_label_line_angle}{Connector-line angle from the gene center to
+the label center, in degrees. \code{90} is vertical and \code{45} is diagonal.
+It is used when \code{linear_label_text_angle = 0}. For rotated text, labels
+are packed rightward first and then upward, so the connector follows the final
+label position instead of forcing this angle. The first available label lane
+has no connector. When a label is moved to a farther lane, the connector
+endpoint and length are recalculated at the near edge of the text.}
+
+\item{linear_label_text_angle}{Rotation angle for linear labels, in degrees. A
+nonzero value rotates the text and activates right-first, upward-second label
+packing. If that angle cannot place all labels, horizontal and vertical
+fallback angles are tested and the best-fitting angle is used. Use \code{0} to
+keep text horizontal and use \code{linear_label_line_angle} for the connector.}
+
+\item{label_line_angle, label_text_angle}{Short aliases for the two linear
+label-angle parameters. When supplied, they override the corresponding
+\code{linear_} values.}
+
+\item{linear_row_spacing}{Vertical distance between adjacent linear genome
+rows.}
+
 \item{label_line_colour, label_linewidth, label_line_linetype}{Label leader
 line colour, width, and linetype.}
 
-\item{label_adjust}{Manual circular-label shifts. Use \code{\link[=label_adjust]{label_adjust()}}, a
-data frame with \code{label}, \code{hjust}, and \code{vjust} columns, or a list with those
-entries. Shifts are in plot-panel units after automatic placement.}
+\item{label_adjust}{Manual label shifts for either layout. Use
+\code{\link[=label_adjust]{label_adjust()}}, a data frame with \code{label},
+\code{hjust}, and \code{vjust} columns, or a list with those entries. A data
+frame may use \code{gene} or \code{gene_id} instead of \code{label}. Positive
+\code{hjust} moves a label right and positive \code{vjust} moves it up.}
 
 \item{show_ruler}{Whether to draw the circular clock/ruler track. Only used
 when \code{layout = "circular"}.}
@@ -185,7 +240,8 @@ height. For linear maps, \code{gene_height} controls arrow height.}
 scales with genome length.}
 
 \item{gene_arrow_head_fraction}{Maximum fraction of each feature that can be
-used as the arrow head.}
+used as the arrow head. When \code{NULL}, circular maps use \code{0.55} and linear
+maps use \code{0.35}.}
 
 \item{gene_gap_bp}{Gap removed from adjacent circular feature arrows, in bp.
 Use \code{0} for no gap.}
@@ -196,7 +252,8 @@ height.}
 \item{gc_content_radius, gc_content_height}{Circular GC-content track radius
 and height. For linear maps, \code{gc_content_height} controls line amplitude.}
 
-\item{gc_content_linewidth}{Line width for the GC-content track.}
+\item{gc_content_linewidth}{Line width for the GC-content track. When \code{NULL},
+the default is \code{0.28} for circular maps and \code{0.45} for linear maps.}
 
 \item{gc_legend_linewidth}{Line width for GC content/skew entries in the
 legend.}
