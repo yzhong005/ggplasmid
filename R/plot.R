@@ -167,13 +167,17 @@ linear_label_leader_endpoints <- function(label_data, segment, y_span,
   line_theta <- line_angle * pi / 180
   text_theta <- abs(as.numeric(text_angle[[1L]]) %% 180) * pi / 180
 
-  # Project the unrotated text rectangle onto the connector direction. The
-  # connector stops at the near/left edge instead of running underneath text.
-  text_width_norm <- label_data$label_text_width / segment
-  text_height_norm <- label_data$label_text_height / y_span
-  edge_distance <- 0.5 * (
-    text_width_norm * abs(cos(line_theta - text_theta)) +
-      text_height_norm * abs(sin(line_theta - text_theta))
+  # Find the first intersection of the connector ray with the text rectangle.
+  # A projection of the rectangle is too long for diagonal leaders and leaves
+  # a visible gap below horizontal labels. The intersection also works when
+  # the text itself is rotated because the ray is evaluated in text coordinates.
+  text_half_width_norm <- label_data$label_text_width / segment / 2
+  text_half_height_norm <- label_data$label_text_height / y_span / 2
+  ray_in_text_x <- abs(cos(line_theta - text_theta))
+  ray_in_text_y <- abs(sin(line_theta - text_theta))
+  edge_distance <- pmin(
+    text_half_width_norm / pmax(ray_in_text_x, 1e-12),
+    text_half_height_norm / pmax(ray_in_text_y, 1e-12)
   )
   edge_x <- edge_distance * cos(line_theta) * segment
   edge_y <- edge_distance * sin(line_theta) * y_span

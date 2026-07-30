@@ -37,10 +37,6 @@ This public pSGNDM-5 reference plasmid is 84,257 bp long. The source is Zhong
 Y, Guo S, Schlundt J, Kwa AL. *JAC-Antimicrobial Resistance*. 2022;4(4):dlac071.
 [10.1093/jacamr/dlac071](https://doi.org/10.1093/jacamr/dlac071).
 
-The demo explicitly uses the `ggsci` `"npg"` palette. Replace `"npg"` with
-`"default"`, `"aaas"`, `"lancet"`, `"jco"`, `"ucscgb"`, `"d3"`, or `"igv"`
-to try another palette.
-
 ```r
 library(ggplasmidZY)
 
@@ -59,7 +55,7 @@ p_circular <- ggplasmid(
   fasta = fasta,                              # sequence for GC tracks
   name = "pSGNDM-5",                          # plot title/name
   layout = "circular",                        # circular map
-  palette = "npg",                            # choose the feature palette
+  palette = "npg",                            # can change to ggsci palette
   label_exclude_categories = "Other functions", # hide these labels only
   max_labels = 24,                             # maximum labels to draw
   label_text_colour = "category",             # color label text by category
@@ -84,7 +80,7 @@ p_linear <- ggplasmid(
   fasta = fasta,                              # sequence for GC tracks
   name = "pSGNDM-5",                          # plot title/name
   layout = "linear",                          # linear map
-  palette = "npg",                            # choose the feature palette
+  palette = "npg",                            # can change to ggsci palette
   plot_line_num = 4,                           # number of genome lines
   max_labels = 36,                             # maximum labels to draw
   linear_label_wrap_width = 18,                # approximate label width
