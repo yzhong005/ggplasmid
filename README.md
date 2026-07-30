@@ -61,6 +61,12 @@ p_circular <- ggplasmid(
 p_circular
 ```
 
+This public pSGNDM-5 reference plasmid is 84,257 bp long. The source is Zhong
+Y, Guo S, Schlundt J, Kwa AL. *JAC-Antimicrobial Resistance*. 2022;4(4):dlac071.
+[10.1093/jacamr/dlac071](https://doi.org/10.1093/jacamr/dlac071).
+
+![pSGNDM-5 circular map](man/figures/README-pSGNDM-5.png)
+
 ### Linear map with default connector direction
 
 This is the recommended starting layout. It uses four genome lines and
@@ -93,53 +99,6 @@ p_linear
 ```
 
 ![pSGNDM-5 four-line linear map with GC tracks](man/figures/README-pSGNDM-5-linear.png)
-
-### Linear map with 45-degree connectors
-
-Use `label_line_angle` to change the connector direction while keeping the
-label text horizontal.
-
-```r
-p_linear_45 <- ggplasmid(
-  annotation = annotation,                    # gene features
-  fasta = fasta,                              # sequence for GC tracks
-  name = "pSGNDM-5",                          # plot title/name
-  layout = "linear",                          # linear map
-  plot_line_num = 4,                           # number of genome lines
-  max_labels = 36,                             # maximum labels to draw
-  linear_label_wrap_width = 18,                # approximate label width
-  linear_label_max_lines = 2,                  # never use more than two rows
-  linear_row_spacing = 4.0,                    # gap between genome lines
-  linear_label_allow_gene_line_crossing = FALSE, # protect line above
-  label_line_angle = 45,                       # diagonal connector direction
-  label_text_angle = 0,                        # keep label text horizontal
-  gc_skew_height = 0.28,                       # taller GC-skew track
-  gc_content_height = 0.14,                    # taller GC-content track
-  gc_content_linewidth = 0.8,                  # thicker GC-content line
-  gc_legend_columns = 1,                       # compact GC legend
-  label_text_colour = "category",             # color label text by category
-  label_line_colour = "category",             # color leader lines by category
-  legend_position = "right"                   # put legends beside the map
-)
-
-p_linear_45
-```
-
-## pSGNDM-5 reference
-
-The package includes a real 84,257 bp pSGNDM-5 example plasmid:
-
-- BioSample: SAMN18579051
-- SRA project: SRP313016
-- Plasmid: pSGNDM-5
-
-Demo plasmid source: Zhong Y, Guo S, Schlundt J, Kwa AL. Identification
-and genomic characterization of a blaNDM-5-harbouring MDR plasmid in a
-carbapenem-resistant *Escherichia coli* ST410 strain isolated from a natural
-water environmental source. *JAC-Antimicrobial Resistance*. 2022;4(4):dlac071.
-doi: [10.1093/jacamr/dlac071](https://doi.org/10.1093/jacamr/dlac071).
-
-![pSGNDM-5 circular map](man/figures/README-pSGNDM-5.png)
 
 The quick-start examples above use the packaged GenBank and FASTA files. The
 parsed data are available as `annotation` and `fasta`, and the data used by an
