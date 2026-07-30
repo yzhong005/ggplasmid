@@ -59,6 +59,7 @@ p_circular <- ggplasmid(
   layout = "circular",                        # circular map
   palette = "default",                        # can change to ggsci palette
   label_exclude_categories = "Other functions", # hide these labels only
+  label_anchor_radius = 1.14,                  # keep labels outside the gene ring
   label_text_size = 4.0,                       # larger bold labels
   label_linewidth = 0.55,                      # thicker label connectors
   label_line_colour = "grey70",               # light-gray leader lines
@@ -70,7 +71,7 @@ p_circular <- ggplasmid(
 p_circular
 ```
 
-![pSGNDM-5 circular map](man/figures/README-pSGNDM-5-bottom-bold-dashed.png)
+![pSGNDM-5 circular map](man/figures/README-pSGNDM-5-bottom-anchor-bold-dashed.png)
 
 ### Linear map with default connector direction
 
@@ -90,7 +91,7 @@ p_linear <- ggplasmid(
   linear_label_wrap_width = 18,                # approximate label width
   linear_label_max_lines = 2,                  # never use more than two rows
   linear_row_spacing = 4.0,                    # gap between genome lines
-  linear_label_allow_gene_line_crossing = FALSE, # protect line above
+  linear_label_allow_gene_line_crossing = FALSE, # protect line and GC tracks above
   label_text_angle = 0,                        # keep label text horizontal
   gc_skew_height = 0.28,                       # taller GC-skew track
   gc_content_height = 0.14,                    # taller GC-content track
@@ -104,7 +105,7 @@ p_linear <- ggplasmid(
 p_linear
 ```
 
-![pSGNDM-5 four-line linear map with GC tracks](man/figures/README-pSGNDM-5-linear-gc.png)
+![pSGNDM-5 four-line linear map with GC tracks](man/figures/README-pSGNDM-5-linear-gc-safe.png)
 
 The quick-start examples above use the packaged GenBank and FASTA files. The
 parsed data are available as `annotation` and `fasta`, and the data used by an

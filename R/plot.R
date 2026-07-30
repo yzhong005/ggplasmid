@@ -287,7 +287,8 @@ linear_label_layout <- function(label_data, segment, rows = 4,
                                 line_angle = 90,
                                 text_angle = 0,
                                 min_gap_fraction = 0.012,
-                                allow_gene_line_crossing = FALSE) {
+                                allow_gene_line_crossing = FALSE,
+                                row_upper_limits = NULL) {
   if (!nrow(label_data)) {
     return(label_data)
   }
@@ -303,6 +304,15 @@ linear_label_layout <- function(label_data, segment, rows = 4,
   allow_gene_line_crossing <- as.logical(allow_gene_line_crossing[[1L]])
   if (is.na(allow_gene_line_crossing)) {
     stop("`linear_label_allow_gene_line_crossing` must be TRUE or FALSE.", call. = FALSE)
+  }
+  if (is.null(row_upper_limits)) {
+    row_upper_limits <- rep(Inf, rows)
+  } else {
+    row_upper_limits <- as.numeric(row_upper_limits)
+    if (length(row_upper_limits) != rows) {
+      stop("`row_upper_limits` must have one value per linear row.", call. = FALSE)
+    }
+    row_upper_limits[!is.finite(row_upper_limits)] <- Inf
   }
 
   label_text <- wrap_label_text_max_lines(
@@ -403,6 +413,9 @@ linear_label_layout <- function(label_data, segment, rows = 4,
       }
     } else {
       Inf
+    }
+    if (!allow_gene_line_crossing && is.finite(row_upper_limits[[row]])) {
+      upper_limit <- min(upper_limit, row_upper_limits[[row]])
     }
 
     if (rotated_text) {
@@ -2536,6 +2549,7 @@ plot_linear_plasmid <- function(features, genome_length, name = NULL, rows = 4,
   p <- ggplot2::ggplot()
   label_y_limit <- -Inf
   gc_track_y_min <- -Inf
+  gc_row_upper_limits <- rep(Inf, rows)
   linear_label_summary <- list(
     n_requested = 0L,
     n_placed = 0L,
@@ -2560,6 +2574,24 @@ plot_linear_plasmid <- function(features, genome_length, name = NULL, rows = 4,
       c(skew$neg_y, skew$content_y),
       na.rm = TRUE
     )
+    gc_row_lower <- vapply(
+      seq_len(rows),
+      function(row) {
+        idx <- which(skew$row_index == row)
+        if (!length(idx)) {
+          return(Inf)
+        }
+        min(
+          c(skew$base_y[idx], skew$pos_y[idx], skew$neg_y[idx], skew$content_y[idx]),
+          na.rm = TRUE
+        )
+      },
+      numeric(1L)
+    )
+    if (rows > 1L) {
+      gc_row_upper_limits[seq.int(2L, rows)] <-
+        gc_row_lower[seq.int(1L, rows - 1L)] - 0.02
+    }
     p <- p +
       ggplot2::geom_ribbon(
         data = skew,
@@ -2645,7 +2677,8 @@ plot_linear_plasmid <- function(features, genome_length, name = NULL, rows = 4,
         rows = rows,
         row_spacing = linear$row_spacing,
         line_angle = linear_label_line_angle,
-        text_angle = angle
+        text_angle = angle,
+        row_upper_limits = gc_row_upper_limits
       )
     }
     used_text_angle <- linear_label_text_angle
