@@ -2535,6 +2535,7 @@ plot_linear_plasmid <- function(features, genome_length, name = NULL, rows = 4,
 
   p <- ggplot2::ggplot()
   label_y_limit <- -Inf
+  gc_track_y_min <- -Inf
   linear_label_summary <- list(
     n_requested = 0L,
     n_placed = 0L,
@@ -2549,10 +2550,16 @@ plot_linear_plasmid <- function(features, genome_length, name = NULL, rows = 4,
     skew$row_index <- pmin(floor((skew$position - 1L) / linear$segment) + 1L, rows)
     skew$row_y <- linear$row_y[skew$row_index]
     skew$x <- skew$position - linear$row_start[skew$row_index]
-    skew$base_y <- skew$row_y - 0.20
+    gc_track_gap <- 0.08
+    skew$base_y <- skew$row_y - gene_height / 2 - gc_track_gap - gc_skew_height
     skew$pos_y <- skew$base_y + pmax(skew$scaled_score, 0) * gc_skew_height
     skew$neg_y <- skew$base_y + pmin(skew$scaled_score, 0) * gc_skew_height
-    skew$content_y <- skew$base_y - 0.13 + skew$scaled_gc_content * gc_content_height
+    skew$content_y <- skew$base_y - 0.10 - gc_content_height +
+      skew$scaled_gc_content * gc_content_height
+    gc_track_y_min <- min(
+      c(skew$neg_y, skew$content_y),
+      na.rm = TRUE
+    )
     p <- p +
       ggplot2::geom_ribbon(
         data = skew,
@@ -2761,7 +2768,10 @@ plot_linear_plasmid <- function(features, genome_length, name = NULL, rows = 4,
     ggplot2::coord_cartesian(
       xlim = c(plot_x_min, plot_x_max),
       ylim = c(
-        min(linear$row_y, na.rm = TRUE) - 0.55,
+        min(
+          min(linear$row_y, na.rm = TRUE) - 0.55,
+          if (is.finite(gc_track_y_min)) gc_track_y_min - 0.10 else Inf
+        ),
         max(
           max(linear$row_y, na.rm = TRUE) + 0.75,
           if (is.finite(label_y_limit)) {

@@ -65,7 +65,7 @@ p_circular <- ggplasmid(
 p_circular
 ```
 
-![pSGNDM-5 circular map](man/figures/README-pSGNDM-5.png)
+![pSGNDM-5 circular map](man/figures/README-pSGNDM-5-bottom.png)
 
 ### Linear map with default connector direction
 
@@ -99,7 +99,7 @@ p_linear <- ggplasmid(
 p_linear
 ```
 
-![pSGNDM-5 four-line linear map with GC tracks](man/figures/README-pSGNDM-5-linear.png)
+![pSGNDM-5 four-line linear map with GC tracks](man/figures/README-pSGNDM-5-linear-gc.png)
 
 The quick-start examples above use the packaged GenBank and FASTA files. The
 parsed data are available as `annotation` and `fasta`, and the data used by an
