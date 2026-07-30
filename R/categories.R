@@ -179,8 +179,13 @@ ggplasmid_resolve_colors <- function(scheme = c("plasmid", "phage"),
     )
     if (is.function(pal_fun)) {
       generated <- suppressWarnings(pal_fun()(length(base)))
-      if (length(generated) < length(base)) {
-        generated <- grDevices::colorRampPalette(generated)(length(base))
+      available <- generated[!is.na(generated) & nzchar(generated)]
+      if (length(available) < length(base)) {
+        generated <- if (length(available) == 1L) {
+          rep(available, length(base))
+        } else {
+          grDevices::colorRampPalette(available)(length(base))
+        }
       }
       base <- stats::setNames(generated, names(base))
       base[c("GC skew+", "GC skew-")] <- c("#008000", "#7030A0")

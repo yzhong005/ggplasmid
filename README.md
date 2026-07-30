@@ -59,7 +59,7 @@ p_circular <- ggplasmid(
   label_exclude_categories = "Other functions", # hide these labels only
   label_text_colour = "category",             # color label text by category
   label_line_colour = "category",             # color leader lines by category
-  legend_position = "right"                   # put legends beside the map
+  legend_position = "bottom"                  # put legends below the map
 )
 
 p_circular
