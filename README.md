@@ -55,7 +55,7 @@ p_circular <- ggplasmid(
   fasta = fasta,                              # sequence for GC tracks
   name = "pSGNDM-5",                          # plot title/name
   layout = "circular",                        # circular map
-  palette = "npg",                            # can change to ggsci palette
+  palette = "default",                        # can change to ggsci palette
   label_exclude_categories = "Other functions", # hide these labels only
   max_labels = 24,                             # maximum labels to draw
   label_text_colour = "category",             # color label text by category
@@ -80,7 +80,7 @@ p_linear <- ggplasmid(
   fasta = fasta,                              # sequence for GC tracks
   name = "pSGNDM-5",                          # plot title/name
   layout = "linear",                          # linear map
-  palette = "npg",                            # can change to ggsci palette
+  palette = "default",                        # can change to ggsci palette
   plot_line_num = 4,                           # number of genome lines
   max_labels = 36,                             # maximum labels to draw
   linear_label_wrap_width = 18,                # approximate label width
