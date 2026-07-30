@@ -187,7 +187,7 @@ default \code{FALSE} removes that label and records it in
 \code{plasmid_data(plot)$linear_label_summary}.}
 
 \item{linear_label_wrap_width}{Number of characters per line for linear labels
-before the maximum-line rule is applied. The default is code{18} to keep
+before the maximum-line rule is applied. The default is \code{18} to keep
 linear labels compact.}
 
 \item{linear_label_max_lines}{Maximum number of text rows for a linear gene
@@ -314,4 +314,22 @@ summary used by the plot.
 }
 \description{
 Draw a plasmid map
+}
+\examples{
+features <- data.frame(
+  start = c(100, 1800, 3200),
+  end = c(900, 2700, 4200),
+  strand = c("+", "-", "+"),
+  product = c("replication protein", "mobilization protein", "beta-lactamase"),
+  category = c("Replication", "Mobile element", "Antimicrobial resistance")
+)
+ggplasmid(
+  annotation = features,
+  genome_length = 5000,
+  name = "pExample",
+  layout = "linear",
+  plot_line_num = 2,
+  show_gc_skew = FALSE,
+  legend_position = "none"
+)
 }

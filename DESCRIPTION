@@ -4,8 +4,6 @@ Version: 0.0.0.9000
 Authors@R: c(
     person("Zhong", "Yang", role = c("aut", "cre"), email = "yzhong005@e.ntu.edu.sg")
   )
-Author: Zhong Yang
-Maintainer: Zhong Yang <yzhong005@e.ntu.edu.sg>
 Description: Generate publication-quality genetic maps, with particular
     suitability for plasmids and bacteriophages. Built entirely within the
     ggplot2 framework, ggplasmidZY supports both circular and linear plotting of

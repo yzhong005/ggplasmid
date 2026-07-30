@@ -6,8 +6,8 @@ utils::globalVariables(c(
   "anchor_x", "anchor_y", "angle", "base_y", "category", "hjust",
   "content_y", "label", "leader_x", "leader_y", "neg_y", "npcx", "npcy", "panel_x", "panel_y",
   "polygon_id", "pos_y", "position", "row_index", "row_y", "type",
-  "track", "vjust", "x", "x0", "x1", "x2", "xend", "xmid_linear", "y",
-  "y0", "y1", "y2", "yend"
+  "track", "text_x", "text_y", "vjust", "x", "x0", "x1", "x2", "xend",
+  "xmid_linear", "y", "y0", "y1", "y2", "yend"
 ))
 
 first_or <- function(x, y) {

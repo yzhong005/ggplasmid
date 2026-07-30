@@ -2979,6 +2979,23 @@ plot_linear_plasmid <- function(features, genome_length, name = NULL, rows = 4,
 #' @return A ggplot object. Use [plasmid_data()] to retrieve the parsed
 #'   annotation, FASTA, normalized features, GC-skew data, and the linear label
 #'   placement summary used by the plot.
+#' @examples
+#' features <- data.frame(
+#'   start = c(100, 1800, 3200),
+#'   end = c(900, 2700, 4200),
+#'   strand = c("+", "-", "+"),
+#'   product = c("replication protein", "mobilization protein", "beta-lactamase"),
+#'   category = c("Replication", "Mobile element", "Antimicrobial resistance")
+#' )
+#' ggplasmid(
+#'   annotation = features,
+#'   genome_length = 5000,
+#'   name = "pExample",
+#'   layout = "linear",
+#'   plot_line_num = 2,
+#'   show_gc_skew = FALSE,
+#'   legend_position = "none"
+#' )
 #' @export
 ggplasmid <- function(annotation = NULL, gbk = NULL, fasta = NULL, skew_table = NULL,
                       output = NULL, layout = c("circular", "linear"),
