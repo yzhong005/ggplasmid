@@ -105,14 +105,11 @@ parsed data are available as `annotation` and `fasta`, and the data used by an
 existing plot can be retrieved with `plasmid_data(p)`. Set
 `label_unknown = TRUE` to include unknown or hypothetical gene labels.
 
-## Linear label placement
+## Label control
 
-Linear labels are placed row by row from left to right. A label first uses the
-closest available position beside its gene, then moves through compact outer
-layers while staying below the gene line of the row above. With
-`linear_label_allow_gene_line_crossing = FALSE`, labels that cannot fit below
-that boundary are omitted. The number and names of omitted labels are available
-with `plasmid_data(p)$linear_label_summary`.
+For detailed circular and linear label placement, manual adjustments, label
+wrapping, and omitted-label summaries, see the
+[Label control Wiki page](https://github.com/yzhong005/ggplasmidZY/wiki/Label-control).
 
 ## Your Own GenBank Input
 
@@ -191,95 +188,6 @@ ggplasmid(
   name = "pExample",
   gene_highlight = gene_highlight(my_colors)
 )
-```
-
-## Label Control
-
-Circular plasmids can contain too many features for every label to be readable.
-The default circular map considers all eligible non-hypothetical labels, sorts
-them from shorter to longer text, and places them on radial outside lanes.
-Crowded labels are moved to farther outer lanes with leader lines. Very dense
-maps may still need a larger output size, smaller `label_text_size`, wider
-`label_wrap_width`, or a finite `max_labels`.
-`max_labels` limits only the number of labels; it does not affect how many gene
-arrows are shown. Hypothetical/unknown genes still have their own grey color
-category, but their text labels are omitted unless `label_unknown = TRUE`.
-
-```r
-ggplasmid(annotation = gbk_data, fasta = fasta_data,
-          name = "pSGNDM-5", max_labels = Inf)
-ggplasmid(annotation = gbk_data, fasta = fasta_data,
-          name = "pSGNDM-5",
-          label_pattern = "NDM|CTX|OXA|TEM|Tra|Rep")
-ggplasmid(annotation = gbk_data, fasta = fasta_data,
-          name = "pSGNDM-5",
-          max_labels = 20,
-          label_min_gap_deg = 8)
-ggplasmid(annotation = gbk_data, fasta = fasta_data,
-          name = "pSGNDM-5", show_labels = FALSE)
-```
-
-Fine-tune one or a few labels after automatic placement:
-
-```r
-ggplasmid(
-  annotation = gbk_data,
-  fasta = fasta_data,
-  name = "pSGNDM-5",
-  label_adjust = label_adjust(
-    label = "RelB/StbD replicon stabilization protein (antitoxin to RelE/StbE)",
-    hjust = 0.02,  # positive moves the label right
-    vjust = -0.03  # positive moves the label up
-  )
-)
-```
-
-The same adjustment can be supplied as a data frame or list:
-
-```r
-label_adjust_df <- data.frame(
-  label = c("RelB/StbD replicon stabilization protein (antitoxin to RelE/StbE)"),
-  hjust = c(0.02),
-  vjust = c(-0.03)
-)
-
-ggplasmid(annotation = gbk_data, fasta = fasta_data,
-          name = "pSGNDM-5",
-          label_adjust = label_adjust_df)
-
-ggplasmid(annotation = gbk_data, fasta = fasta_data,
-          name = "pSGNDM-5",
-          label_adjust = list(label = "RelB/StbD replicon stabilization protein (antitoxin to RelE/StbE)",
-                              hjust = 0.02,
-                              vjust = -0.03))
-```
-
-For linear maps, the same adjustment can target a gene ID and moves the label
-and its connector together:
-
-```r
-linear_adjustments <- data.frame(
-  gene_id = "tetR",
-  hjust = 0.20,
-  vjust = 0.10
-)
-
-p_linear <- ggplasmid(annotation = gbk_data, fasta = fasta_data,
-                       name = "pSGNDM-5", layout = "linear",
-                       plot_line_num = 5,
-                       label_adjust = linear_adjustments)
-plasmid_data(p_linear)$linear_label_summary
-```
-
-If Windows reports a font database warning, keep the default portable font or
-choose an installed family:
-
-```r
-ggplasmid(annotation = gbk_data, fasta = fasta_data,
-          name = "pSGNDM-5", font_family = "sans")
-ggplasmid(annotation = gbk_data, fasta = fasta_data,
-          name = "pSGNDM-5",
-          font_family = "Times New Roman")
 ```
 
 ## Styling
