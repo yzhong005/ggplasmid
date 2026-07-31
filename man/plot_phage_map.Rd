@@ -283,9 +283,10 @@ ruler line widths.}
 \item{label_text_size, ruler_text_size, center_text_size, legend_text_size}{Text
 sizes.}
 
-\item{label_text_colour}{Label text colour. Use a fixed R colour such as
-\code{"black"}, a vector with one colour per label, or the name of any
-annotation column containing valid R colours.}
+\item{label_text_colour}{Label text colour. Use \code{"category"} to use the
+selected palette, a fixed R colour such as \code{"black"}, a vector with one
+colour per label, or the name of an annotation column containing valid R
+colours.}
 
 \item{row_label_text_size}{Text size for linear row labels.}
 

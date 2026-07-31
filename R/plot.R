@@ -2088,8 +2088,15 @@ resolve_label_text_colours <- function(label_data, feature_colors,
   }
 
   if (!is.null(column_name)) {
-    colours <- as.character(label_data[[column_name]])
-    source <- paste0("annotation column `", column_name, "`")
+    values <- as.character(label_data[[column_name]])
+    if (normalise_key(column_name) == normalise_key("category")) {
+      colours <- unname(feature_colors[values])
+      colours[is.na(colours) | !nzchar(colours)] <- "black"
+      source <- "the selected category palette"
+    } else {
+      colours <- values
+      source <- paste0("annotation column `", column_name, "`")
+    }
   } else if (length(label_text_colour) == n) {
     colours <- as.character(label_text_colour)
     source <- "colour vector"
@@ -3277,9 +3284,10 @@ plot_linear_plasmid <- function(features, genome_length, name = NULL, rows = 4,
 #' @param sequence_linewidth Linear layout baseline width.
 #' @param label_text_size,ruler_text_size,center_text_size,legend_text_size Text
 #'   sizes.
-#' @param label_text_colour Label text colour. Use a fixed R colour such as
-#'   `"black"`, a vector with one colour per label, or the name of any
-#'   annotation column containing valid R colours.
+#' @param label_text_colour Label text colour. Use `"category"` to use the
+#'   selected palette, a fixed R colour such as `"black"`, a vector with one
+#'   colour per label, or the name of an annotation column containing valid R
+#'   colours.
 #' @param label_anchor_radius Starting radius for outside circular labels.
 #'   Increase it to push labels farther from the gene ring.
 #' @param row_label_text_size Text size for linear row labels.
