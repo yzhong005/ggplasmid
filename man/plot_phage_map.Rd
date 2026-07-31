@@ -129,7 +129,8 @@ product names, and \code{"gene"} prefers gene IDs.}
 \item{palette}{A ggsci palette name: \code{"npg"}, \code{"aaas"},
 \code{"lancet"}, \code{"jco"}, \code{"ucscgb"}, \code{"d3"},
 \code{"igv"}, \code{"observable"}, \code{"nejm"}, \code{"jama"},
-\code{"primer"}, \code{"iterm"}, or \code{"futurama"}.}
+\code{"primer"}, \code{"iterm"}, \code{"futurama"}, or
+\code{"locuszoom"}.}
 
 \item{gene_highlight}{Optional named character vector, or data frame with
 category/color columns, used to override specific category colors.}

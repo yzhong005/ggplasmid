@@ -59,7 +59,7 @@ p_circular <- ggplasmid(
   annotation = annotation,                    # gene features and ORIGIN sequence
   name = "pSGNDM-5",                          # plot title/name
   layout = "circular",                        # circular map
-  palette = "lancet",                         # ggsci palette; supported: "npg", "aaas", "lancet", "jco", "ucscgb", "d3", "igv", "observable", "nejm", "jama", "primer", "iterm", "futurama"
+  palette = "lancet",                         # ggsci palette; supported: "npg", "aaas", "lancet", "jco", "ucscgb", "d3", "igv", "observable", "nejm", "jama", "primer", "iterm", "futurama", "locuszoom"
   gene_highlight = gene_highlight(
     "Unknown function, hypothetical protein" = "grey30"
   ),                                         # highlight unknown-function arrows
@@ -91,7 +91,7 @@ p_linear <- ggplasmid(
   annotation = annotation,                    # gene features and ORIGIN sequence
   name = "pSGNDM-5",                          # plot title/name
   layout = "linear",                          # linear map
-  palette = "nejm",                           # ggsci palette; supported: "npg", "aaas", "lancet", "jco", "ucscgb", "d3", "igv", "observable", "nejm", "jama", "primer", "iterm", "futurama"
+  palette = "nejm",                           # ggsci palette; supported: "npg", "aaas", "lancet", "jco", "ucscgb", "d3", "igv", "observable", "nejm", "jama", "primer", "iterm", "futurama", "locuszoom"
   plot_line_num = 5,                           # number of genome lines
   max_labels = 36,                             # maximum labels to draw
   linear_label_wrap_width = 18,                # approximate label width
@@ -247,7 +247,7 @@ Most plot geometry and text settings have defaults but can be tuned directly:
 ggplasmid(
   annotation = annotation,
   name = "pSGNDM-5",
-  palette = "npg", # ggsci palette; supported: "npg", "aaas", "lancet", "jco", "ucscgb", "d3", "igv", "observable", "nejm", "jama", "primer", "iterm", "futurama"
+  palette = "npg", # ggsci palette; supported: "npg", "aaas", "lancet", "jco", "ucscgb", "d3", "igv", "observable", "nejm", "jama", "primer", "iterm", "futurama", "locuszoom"
   gene_highlight = gene_highlight(
     "Antimicrobial resistance" = "#B2182B",
     "Replication" = "#2166AC"
@@ -273,7 +273,8 @@ ggplasmid(
 
 `palette` accepts the ggsci palette names `"npg"`, `"aaas"`, `"lancet"`,
 `"jco"`, `"ucscgb"`, `"d3"`, `"igv"`, `"observable"`, `"nejm"`, `"jama"`,
-`"primer"`, `"iterm"`, and `"futurama"`. Use `ggplasmid_colors()` only when
+`"primer"`, `"iterm"`, `"futurama"`, and `"locuszoom"`. Use
+`ggplasmid_colors()` only when
 you want to inspect the built-in category names; `gene_highlight()` can also
 use the category values in your own annotation table. Circular `*_radius` settings
 are distances from the center of the plot to that ring.
