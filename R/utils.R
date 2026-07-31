@@ -24,6 +24,9 @@ normalise_key <- function(x) {
 }
 
 read_delim_auto <- function(path) {
+  if (is.data.frame(path)) {
+    return(as.data.frame(path, stringsAsFactors = FALSE))
+  }
   first <- readLines(path, n = 1, warn = FALSE)
   if (!length(first)) {
     stop("Input table is empty: ", path, call. = FALSE)

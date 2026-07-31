@@ -14,11 +14,13 @@ plot_plasmid_map(
   phage_topology = c("circular", "linear"),
   name = NULL,
   genome_length = NULL,
+  region_start = NULL,
+  region_end = NULL,
   feature_types = c("CDS", "tRNA", "rRNA", "tmRNA", "ncRNA", "rep_origin",
     "mobile_element"),
   label_mode = c("auto", "product", "gene"),
   category_scheme = c("plasmid", "phage"),
-  palette = "default",
+  palette = "npg",
   gene_highlight = NULL,
   rows = 4,
   genome_line_num = NULL,
@@ -41,6 +43,7 @@ plot_plasmid_map(
   linear_label_allow_gene_line_crossing = FALSE,
   linear_label_line_angle = 90,
   linear_label_text_angle = 0,
+  linear_label_side = "top",
   label_line_angle = NULL,
   label_text_angle = NULL,
   label_line_colour = "grey70",
@@ -98,7 +101,8 @@ plot_plasmid_map(
 
 \item{gbk}{Optional GenBank file.}
 
-\item{fasta}{Optional FASTA file for GC-skew calculation and length inference.}
+\item{fasta}{Optional FASTA file for annotation-table input, or as an
+alternative sequence source when the GenBank record has no \code{ORIGIN}.}
 
 \item{skew_table}{Optional precomputed GC-skew table with \code{position} and \code{gc_skew}.}
 
@@ -114,6 +118,10 @@ invisibly returned.}
 
 \item{genome_length}{Optional plasmid/genome length.}
 
+\item{region_start, region_end}{Optional 1-based inclusive coordinates for
+the sequence window to display. Features are filtered and rebased to the
+window; sequence-derived GC tracks and FASTA records are sliced to match.}
+
 \item{feature_types}{GenBank feature types to keep.}
 
 \item{label_mode}{\code{"auto"} prefers compact gene labels, \code{"product"} uses
@@ -121,9 +129,9 @@ product names, and \code{"gene"} prefers gene IDs.}
 
 \item{category_scheme}{Either \code{"plasmid"} or \code{"phage"}.}
 
-\item{palette}{Color palette. \code{"default"} uses ggplasmid colors; when
-\code{ggsci} is installed, common ggsci palette names such as \code{"npg"},
-\code{"aaas"}, \code{"lancet"}, \code{"jco"}, \code{"ucscgb"}, \code{"d3"}, and \code{"igv"} can be used.}
+\item{palette}{A ggsci palette name: \code{"npg"}, \code{"aaas"},
+\code{"lancet"}, \code{"jco"}, \code{"ucscgb"}, \code{"d3"}, or
+\code{"igv"}.}
 
 \item{gene_highlight}{Optional named character vector, or data frame with
 category/color columns, used to override specific category colors.}
@@ -215,8 +223,14 @@ label-angle parameters. When supplied, they override the corresponding
 \item{linear_row_spacing}{Vertical distance between adjacent linear genome
 rows.}
 
+\item{linear_label_side}{Which side of each linear gene may receive labels:
+\code{"top"} (the default) or \code{"both"}. In \code{"both"} mode labels are
+packed independently above and below each genome row.}
+
 \item{label_line_colour, label_linewidth, label_line_linetype}{Label leader
-line colour, width, and linetype.}
+line colour, width, and linetype. \code{label_line_colour} may be a fixed R
+colour, a vector with one colour per label, or the name of an annotation column
+containing valid R colours.}
 
 \item{label_adjust}{Manual label shifts for either layout. Use
 \code{\link[=label_adjust]{label_adjust()}}, a data frame with \code{label},
@@ -272,9 +286,9 @@ ruler line widths.}
 \item{label_text_size, ruler_text_size, center_text_size, legend_text_size}{Text
 sizes.}
 
-\item{label_text_colour}{Label text colour. Use \code{"black"} for one fixed
-colour, \code{"category"} to match each label to its gene category colour, or a
-named vector such as \code{c("Antimicrobial resistance" = "#B2182B")}.}
+\item{label_text_colour}{Label text colour. Use a fixed R colour such as
+\code{"black"}, a vector with one colour per label, or the name of any
+annotation column containing valid R colours.}
 
 \item{row_label_text_size}{Text size for linear row labels.}
 

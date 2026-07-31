@@ -124,7 +124,7 @@ ggplot_add.ggplasmid_gene_highlight <- function(object, plot, object_name) {
   scheme <- style$category_scheme %||% "plasmid"
   base <- style$fill_colors %||% ggplasmid_resolve_colors(
     scheme = scheme,
-    palette = style$palette %||% "default"
+    palette = style$palette %||% "npg"
   )
   highlight <- gene_highlight(highlight = unclass(object), scheme = scheme)
   base[names(highlight)] <- unname(highlight)
@@ -159,38 +159,33 @@ ggplot_add.ggplasmid_gene_highlight <- function(object, plot, object_name) {
 }
 
 ggplasmid_resolve_colors <- function(scheme = c("plasmid", "phage"),
-                                     palette = c("default", "npg", "aaas", "lancet", "jco", "ucscgb", "d3", "igv"),
+                                     palette = c("npg", "aaas", "lancet", "jco", "ucscgb", "d3", "igv"),
                                      gene_highlight = NULL) {
   scheme <- match.arg(scheme)
   palette <- match.arg(palette)
   base <- ggplasmid_colors(scheme)
 
-  if (palette != "default" && requireNamespace("ggsci", quietly = TRUE)) {
-    pal_fun <- switch(
-      palette,
-      npg = ggsci::pal_npg,
-      aaas = ggsci::pal_aaas,
-      lancet = ggsci::pal_lancet,
-      jco = ggsci::pal_jco,
-      ucscgb = ggsci::pal_ucscgb,
-      d3 = ggsci::pal_d3,
-      igv = ggsci::pal_igv,
-      NULL
-    )
-    if (is.function(pal_fun)) {
-      generated <- suppressWarnings(pal_fun()(length(base)))
-      available <- generated[!is.na(generated) & nzchar(generated)]
-      if (length(available) < length(base)) {
-        generated <- if (length(available) == 1L) {
-          rep(available, length(base))
-        } else {
-          grDevices::colorRampPalette(available)(length(base))
-        }
-      }
-      base <- stats::setNames(generated, names(base))
-      base[c("GC skew+", "GC skew-")] <- c("#008000", "#7030A0")
+  pal_fun <- switch(
+    palette,
+    npg = ggsci::pal_npg,
+    aaas = ggsci::pal_aaas,
+    lancet = ggsci::pal_lancet,
+    jco = ggsci::pal_jco,
+    ucscgb = ggsci::pal_ucscgb,
+    d3 = ggsci::pal_d3,
+    igv = ggsci::pal_igv
+  )
+  generated <- suppressWarnings(pal_fun()(length(base)))
+  available <- generated[!is.na(generated) & nzchar(generated)]
+  if (length(available) < length(base)) {
+    generated <- if (length(available) == 1L) {
+      rep(available, length(base))
+    } else {
+      grDevices::colorRampPalette(available)(length(base))
     }
   }
+  base <- stats::setNames(generated, names(base))
+  base[c("GC skew+", "GC skew-")] <- c("#008000", "#7030A0")
 
   if (!is.null(gene_highlight)) {
     highlight <- do.call(

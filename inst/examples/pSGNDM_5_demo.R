@@ -1,18 +1,14 @@
 library(ggplasmidZY)
 
 gbk_file <- system.file("extdata", "pSGNDM_5.gbk", package = "ggplasmidZY")
-fasta_file <- system.file("extdata", "pSGNDM_5.fasta", package = "ggplasmidZY")
 
 gbk_data <- read_plasmid_annotation(gbk = gbk_file)
-fasta_data <- read_plasmid_fasta(fasta_file)
 if (interactive()) {
   View(gbk_data)
-  View(fasta_data)
 }
 
 p_circular <- ggplasmid(
   annotation = gbk_data,
-  fasta = fasta_data,
   name = "pSGNDM-5",
   layout = "circular",
   palette = "npg",
@@ -21,14 +17,13 @@ p_circular <- ggplasmid(
   max_labels = 24,
   label_wrap_width = 18,
   label_text_size = 3.0,
-  label_text_colour = "category",
-  label_line_colour = "category"
+  label_text_colour = "black",
+  label_line_colour = "grey70"
 )
 p_circular
 
 p_linear <- ggplasmid(
   annotation = gbk_data,
-  fasta = fasta_data,
   name = "pSGNDM-5",
   layout = "linear",
   palette = "npg",
@@ -43,8 +38,8 @@ p_linear <- ggplasmid(
   gc_content_height = 0.14,
   gc_content_linewidth = 0.8,
   gc_legend_columns = 1,
-  label_text_colour = "category",
-  label_line_colour = "category",
+  label_text_colour = "black",
+  label_line_colour = "grey70",
   legend_position = "right"
 )
 p_linear
@@ -52,7 +47,6 @@ p_linear
 # The same four-line map with diagonal connector lines.
 p_linear_45 <- ggplasmid(
   annotation = gbk_data,
-  fasta = fasta_data,
   name = "pSGNDM-5",
   layout = "linear",
   palette = "npg",
@@ -68,8 +62,8 @@ p_linear_45 <- ggplasmid(
   gc_content_height = 0.14,
   gc_content_linewidth = 0.8,
   gc_legend_columns = 1,
-  label_text_colour = "category",
-  label_line_colour = "category",
+  label_text_colour = "black",
+  label_line_colour = "grey70",
   legend_position = "right"
 )
 p_linear_45

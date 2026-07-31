@@ -295,7 +295,14 @@ read_plasmid_annotation <- function(annotation = NULL, gbk = NULL,
     return(read_genbank_file(gbk, feature_types = feature_types))
   }
   if (is.data.frame(annotation)) {
-    return(as.data.frame(annotation, stringsAsFactors = FALSE))
+    out <- as.data.frame(annotation, stringsAsFactors = FALSE)
+    for (attribute in c("genome_length", "sequence", "name")) {
+      value <- attr(annotation, attribute, exact = TRUE)
+      if (!is.null(value)) {
+        attr(out, attribute) <- value
+      }
+    }
+    return(out)
   }
   if (is.character(annotation) && length(annotation) == 1) {
     if (!file.exists(annotation)) {

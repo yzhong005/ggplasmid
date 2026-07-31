@@ -1,5 +1,6 @@
 utils::globalVariables(c(
-  "colour", "label_x", "label_y", "line_colour", "line_x1", "line_y0", "line_y1"
+  "colour", "label_x", "label_y", "line_colour", "line_x1", "line_y0", "line_y1",
+  "linear_label_gene_y"
 ))
 
 feature_segments <- function(features, genome_length, circular = TRUE) {
@@ -155,8 +156,9 @@ linear_label_leader_endpoints <- function(label_data, segment, y_span,
   }
   rotated_text <- abs(as.numeric(text_angle[[1L]]) %% 180) > 1e-10
   if (rotated_text && all(c("xmid_linear", "line_y0") %in% names(label_data))) {
+    gene_y <- label_data$linear_label_gene_y %||% label_data$line_y0
     direction_x <- (label_data$label_x - label_data$xmid_linear) / segment
-    direction_y <- (label_data$label_y - label_data$line_y0) / y_span
+    direction_y <- (label_data$label_y - gene_y) / y_span
     line_angle <- atan2(abs(direction_y), pmax(abs(direction_x), 1e-12)) * 180 / pi
   } else {
     line_angle <- linear_label_effective_line_angle(line_angle, text_angle)
@@ -188,6 +190,9 @@ linear_label_leader_endpoints <- function(label_data, segment, y_span,
   }
   has_leader[is.na(has_leader)] <- FALSE
   label_side <- label_data$linear_label_side %||% rep(1, nrow(label_data))
+  vertical_side <- label_data$linear_label_vertical_sign %||%
+    rep(1, nrow(label_data))
+  vertical_side <- ifelse(vertical_side < 0, -1, 1)
   label_data$line_x1 <- ifelse(
     has_leader,
     label_data$label_x - label_side * edge_x,
@@ -195,7 +200,7 @@ linear_label_leader_endpoints <- function(label_data, segment, y_span,
   )
   label_data$line_y1 <- ifelse(
     has_leader,
-    label_data$label_y - edge_y,
+    label_data$label_y - vertical_side * edge_y,
     NA_real_
   )
   label_data
@@ -288,7 +293,9 @@ linear_label_layout <- function(label_data, segment, rows = 4,
                                 text_angle = 0,
                                 min_gap_fraction = 0.012,
                                 allow_gene_line_crossing = FALSE,
-                                row_upper_limits = NULL) {
+                                row_upper_limits = NULL,
+                                row_lower_limits = NULL,
+                                label_side = c("top", "bottom", "both")) {
   if (!nrow(label_data)) {
     return(label_data)
   }
@@ -314,6 +321,16 @@ linear_label_layout <- function(label_data, segment, rows = 4,
     }
     row_upper_limits[!is.finite(row_upper_limits)] <- Inf
   }
+  if (is.null(row_lower_limits)) {
+    row_lower_limits <- rep(Inf, rows)
+  } else {
+    row_lower_limits <- as.numeric(row_lower_limits)
+    if (length(row_lower_limits) != rows) {
+      stop("`row_lower_limits` must have one value per linear row.", call. = FALSE)
+    }
+    row_lower_limits[!is.finite(row_lower_limits)] <- Inf
+  }
+  label_side_mode <- match.arg(label_side)
 
   label_text <- wrap_label_text_max_lines(
     label_data$label_display %||% label_data$label,
@@ -328,7 +345,9 @@ linear_label_layout <- function(label_data, segment, rows = 4,
   y_span <- max(row_spacing * max(rows - 1L, 1L), 1)
   width_bp <- pmax(rotated_width * segment * 1.05, segment * 0.014)
   height_y <- pmax(rotated_height * y_span * 0.65, 0.30)
-  label_padding_y <- 0.02
+  # The padding is part of the collision box and keeps wrapped text clear of
+  # the arrow edge, including when a label has two lines.
+  label_padding_y <- max(0.03, gene_height * 0.08)
 
   if (!is.null(label_lane_step)) {
     label_lane_gap <- as.numeric(label_lane_step[[1L]])
@@ -356,34 +375,52 @@ linear_label_layout <- function(label_data, segment, rows = 4,
     label_lane_gap * sin(line_theta)
   }
   x_per_y <- segment / y_span
-  # Linear leaders use one consistent direction: upward and to the right.
-  # This makes a 45-degree connector mean +45 degrees from the gene line for
-  # every gene, rather than switching between up-left and up-right.
-  label_side <- rep(1, nrow(label_data))
+  # Linear leaders use one consistent horizontal direction: to the right.
+  # The vertical sign is selected independently when both label sides are used.
+  horizontal_side <- rep(1, nrow(label_data))
 
   # Convert a vertical rise in plot coordinates into the horizontal distance
   # needed to keep each connector at the requested angle.
-  label_x_for_y <- function(i, y) {
+  label_x_for_y <- function(i, y, side = 1) {
     if (line_angle == 90) {
       return(label_data$xmid_linear[[i]])
     }
-    rise <- y - label_data$line_y0[[i]]
-    label_data$xmid_linear[[i]] + label_side[[i]] *
+    gene_y <- if (side < 0) {
+      label_data$line_y_bottom[[i]]
+    } else {
+      label_data$line_y0[[i]]
+    }
+    rise <- abs(y - gene_y)
+    label_data$xmid_linear[[i]] + horizontal_side[[i]] *
       rise * x_per_y / tan(line_theta)
   }
 
   label_data$label <- label_text
   label_data$label_lane <- 0L
   label_data$line_y0 <- label_data$row_y + gene_height / 2
+  label_data$line_y_bottom <- label_data$row_y - gene_height / 2
   label_data$label_text_width <- dims$width * segment * 1.05
   label_data$label_text_height <- dims$height * y_span * 0.65
   label_data$label_box_width <- width_bp
   label_data$label_box_height <- height_y
-  label_data$label_y <- label_data$line_y0 + gene_height / 2 + label_offset +
-    height_y / 2 + label_padding_y
+  initial_vertical_sign <- if (identical(label_side_mode, "bottom")) -1 else 1
+  label_data$linear_label_vertical_sign <- rep(
+    initial_vertical_sign,
+    nrow(label_data)
+  )
+  label_data$label_y <- if (initial_vertical_sign > 0) {
+    label_data$line_y0 + label_offset +
+      height_y / 2 + label_padding_y
+  } else {
+    label_data$line_y_bottom - label_offset - height_y / 2 - label_padding_y
+  }
   label_data$label_x <- vapply(
     seq_len(nrow(label_data)),
-    function(i) label_x_for_y(i, label_data$label_y[[i]]),
+    function(i) label_x_for_y(
+      i,
+      label_data$label_y[[i]],
+      initial_vertical_sign
+    ),
     numeric(1L)
   )
   label_data$linear_label_initial_x <- label_data$label_x
@@ -391,16 +428,24 @@ linear_label_layout <- function(label_data, segment, rows = 4,
   label_data$line_y1 <- label_data$label_y
   removed_indices <- integer()
   rotated_text <- abs(as.numeric(text_angle[[1L]]) %% 180) > 1e-10
+  if (rotated_text && !identical(label_side_mode, "top")) {
+    stop(
+      "`linear_label_side = 'bottom'` or `'both'` currently requires `linear_label_text_angle = 0`.",
+      call. = FALSE
+    )
+  }
   horizontal_limit <- segment * 1.025 + max(width_bp, na.rm = TRUE)
 
+  placed_global <- data.frame(
+    center_x = numeric(), center_y = numeric(),
+    box_width = numeric(), box_height = numeric(),
+    text_width = numeric(), text_height = numeric()
+  )
   row_order <- sort(unique(label_data$row_index))
   for (row in row_order) {
-    placed <- data.frame(
-      center_x = numeric(), center_y = numeric(),
-      box_width = numeric(), box_height = numeric(),
-      text_width = numeric(), text_height = numeric()
-    )
+    placed <- placed_global
     idx <- which(label_data$row_index == row)
+    current_row_y <- label_data$row_y[idx[[1L]]]
     # Place labels in the same left-to-right order as the genes in this row.
     # The original row order is only a deterministic tie-break for identical centers.
     idx <- idx[order(label_data$xmid_linear[idx], idx)]
@@ -417,13 +462,25 @@ linear_label_layout <- function(label_data, segment, rows = 4,
     if (!allow_gene_line_crossing && is.finite(row_upper_limits[[row]])) {
       upper_limit <- min(upper_limit, row_upper_limits[[row]])
     }
+    if (identical(label_side_mode, "both") && row > 1L) {
+      above_row_y <- label_data$row_y[label_data$row_index == row - 1L]
+      if (length(above_row_y)) {
+        # Keep the top labels of this row below the midpoint between rows.
+        # The matching bottom corridor is applied below, so connectors from
+        # neighboring rows cannot cross in the same vertical space.
+        upper_limit <- min(
+          upper_limit,
+          (above_row_y[[1L]] + current_row_y) / 2
+        )
+      }
+    }
 
     if (rotated_text) {
       # Rotated labels are packed horizontally first. Only after the current
       # height is full do they move to a higher layer.
       vertical_step <- label_lane_gap
       for (i in idx) {
-        base_y <- label_data$line_y0[[i]] + gene_height / 2 + label_offset
+        base_y <- label_data$line_y0[[i]] + label_offset
         initial_y <- base_y + height_y[[i]] / 2 + label_padding_y
         text_theta <- (as.numeric(text_angle[[1L]]) %% 360) * pi / 180
         initial_x <- label_data$xmid_linear[[i]] +
@@ -548,126 +605,173 @@ linear_label_layout <- function(label_data, segment, rows = 4,
           )
         )
       }
+      placed_global <- placed
       next
     }
 
-    for (i in idx) {
-      base_y <- label_data$line_y0[[i]] + gene_height / 2 + label_offset
-      max_lane <- if (is.finite(upper_limit)) {
-        floor((upper_limit - base_y - height_y[[i]] / 2 - label_padding_y) /
-          lane_y_step)
+    side_counts <- c(top = 0L, bottom = 0L)
+    side_options <- switch(
+      label_side_mode,
+      top = 1L,
+      bottom = -1L,
+      both = c(1L, -1L)
+    )
+    candidate_for_side <- function(i, side) {
+      top_base_y <- label_data$line_y0[[i]] + label_offset
+      bottom_base_y <- label_data$line_y_bottom[[i]] - label_offset
+      bottom_ceiling <- if (is.finite(row_lower_limits[[row]])) {
+        row_lower_limits[[row]] - label_padding_y
       } else {
-        NA_integer_
+        label_data$row_y[[i]] - gene_height / 2 - label_padding_y
       }
-      found <- FALSE
-      if (is.finite(max_lane)) {
-        candidate_lanes <- seq.int(0L, max(0L, max_lane))
-        for (lane in candidate_lanes) {
-          candidate_y <- base_y + height_y[[i]] / 2 + label_padding_y +
-            lane * lane_y_step
-          candidate_x <- label_x_for_y(i, candidate_y)
-          frame <- data.frame(
-            xmin = candidate_x - width_bp[[i]] / 2,
-            xmax = candidate_x + width_bp[[i]] / 2,
-            ymin = candidate_y - height_y[[i]] / 2 - label_padding_y,
-            ymax = candidate_y + height_y[[i]] / 2 + label_padding_y
-          )
-          overlap <- linear_label_boxes_overlap(
-            candidate_x = candidate_x,
-            candidate_y = candidate_y,
-            candidate_width = width_bp[[i]],
-            candidate_height = height_y[[i]],
-            candidate_text_width = label_data$label_text_width[[i]],
-            candidate_text_height = label_data$label_text_height[[i]],
-            placed = placed,
-            segment = segment,
-            y_span = y_span,
-            text_angle = text_angle,
-            padding_x = label_padding_x,
-            padding_y = label_padding_y
-          )
-          if (!overlap && frame$ymax <= upper_limit + 1e-8) {
-            found <- TRUE
-            break
+      bottom_floor <- if (row < rows) {
+        next_row_y <- label_data$row_y[label_data$row_index == row + 1L]
+        if (length(next_row_y)) {
+          next_gene_floor <- next_row_y[[1L]] + gene_height / 2 + label_padding_y
+          if (identical(label_side_mode, "both")) {
+            max(
+              next_gene_floor,
+              (current_row_y + next_row_y[[1L]]) / 2
+            )
+          } else {
+            next_gene_floor
           }
+        } else {
+          -Inf
         }
-        if (!found) {
-          if (!allow_gene_line_crossing) {
-            removed_indices <- c(removed_indices, i)
-            next
-          }
-          lane <- max(0L, max_lane) + 1L
-          repeat {
-            candidate_y <- base_y + height_y[[i]] / 2 + label_padding_y +
-              lane * lane_y_step
-            candidate_x <- label_x_for_y(i, candidate_y)
-            frame <- data.frame(
-              xmin = candidate_x - width_bp[[i]] / 2,
-              xmax = candidate_x + width_bp[[i]] / 2,
-              ymin = candidate_y - height_y[[i]] / 2 - label_padding_y,
-              ymax = candidate_y + height_y[[i]] / 2 + label_padding_y
-            )
-            overlap <- linear_label_boxes_overlap(
-              candidate_x = candidate_x,
-              candidate_y = candidate_y,
-              candidate_width = width_bp[[i]],
-              candidate_height = height_y[[i]],
-              candidate_text_width = label_data$label_text_width[[i]],
-              candidate_text_height = label_data$label_text_height[[i]],
-              placed = placed,
-              segment = segment,
-              y_span = y_span,
-              text_angle = text_angle,
-              padding_x = label_padding_x,
-              padding_y = label_padding_y
-            )
-            if (!overlap) {
-              break
+      } else {
+        -Inf
+      }
+      if (side > 0) {
+        max_lane <- if (is.finite(upper_limit)) {
+          floor((upper_limit - top_base_y - height_y[[i]] / 2 - label_padding_y) /
+            lane_y_step)
+        } else {
+          max(100L, nrow(label_data) * 2L + 10L)
+        }
+        candidate_lanes <- if (max_lane >= 0) {
+          seq.int(0L, max(0L, max_lane))
+        } else {
+          integer()
+        }
+      } else {
+        min_lane <- max(
+          0L,
+          ceiling((bottom_base_y + height_y[[i]] / 2 + label_padding_y -
+            bottom_ceiling) / lane_y_step)
+        )
+        max_lane <- if (is.finite(bottom_floor)) {
+          floor((bottom_base_y - height_y[[i]] / 2 - label_padding_y -
+            bottom_floor) / lane_y_step)
+        } else {
+          max(100L, nrow(label_data) * 2L + 10L)
+        }
+        candidate_lanes <- if (max_lane >= min_lane) {
+          seq.int(min_lane, max_lane)
+        } else {
+          integer()
+        }
+      }
+      for (lane in candidate_lanes) {
+        candidate_y <- if (side > 0) {
+          top_base_y + height_y[[i]] / 2 + label_padding_y +
+            lane * lane_y_step
+        } else {
+          bottom_base_y - height_y[[i]] / 2 - label_padding_y -
+            lane * lane_y_step
+        }
+        candidate_x <- label_x_for_y(i, candidate_y, side)
+        frame <- data.frame(
+          xmin = candidate_x - width_bp[[i]] / 2,
+          xmax = candidate_x + width_bp[[i]] / 2,
+          ymin = candidate_y - height_y[[i]] / 2 - label_padding_y,
+          ymax = candidate_y + height_y[[i]] / 2 + label_padding_y
+        )
+        overlap <- linear_label_boxes_overlap(
+          candidate_x = candidate_x,
+          candidate_y = candidate_y,
+          candidate_width = width_bp[[i]],
+          candidate_height = height_y[[i]],
+          candidate_text_width = label_data$label_text_width[[i]],
+          candidate_text_height = label_data$label_text_height[[i]],
+          placed = placed,
+          segment = segment,
+          y_span = y_span,
+          text_angle = text_angle,
+          padding_x = label_padding_x,
+          padding_y = label_padding_y
+        )
+        within_bounds <- if (side > 0) {
+          frame$ymax <= upper_limit + 1e-8
+        } else {
+          frame$ymax <= bottom_ceiling + 1e-8 &&
+            frame$ymin >= bottom_floor - 1e-8
+        }
+        if (!overlap && within_bounds) {
+          return(list(
+            found = TRUE,
+            side = side,
+            lane = lane,
+            x = candidate_x,
+            y = candidate_y,
+            frame = frame,
+            base_x = label_x_for_y(
+              i,
+              if (side > 0) {
+                top_base_y + height_y[[i]] / 2 + label_padding_y
+              } else {
+                bottom_base_y - height_y[[i]] / 2 - label_padding_y
+              },
+              side
+            ),
+            base_y = if (side > 0) {
+              top_base_y + height_y[[i]] / 2 + label_padding_y
+            } else {
+              bottom_base_y - height_y[[i]] / 2 - label_padding_y
             }
-            lane <- lane + 1L
-          }
-        }
-      } else {
-        lane <- 0L
-        repeat {
-          candidate_y <- base_y + height_y[[i]] / 2 + label_padding_y +
-            lane * lane_y_step
-          candidate_x <- label_x_for_y(i, candidate_y)
-          frame <- data.frame(
-            xmin = candidate_x - width_bp[[i]] / 2,
-            xmax = candidate_x + width_bp[[i]] / 2,
-            ymin = candidate_y - height_y[[i]] / 2 - label_padding_y,
-            ymax = candidate_y + height_y[[i]] / 2 + label_padding_y
-          )
-          overlap <- linear_label_boxes_overlap(
-            candidate_x = candidate_x,
-            candidate_y = candidate_y,
-            candidate_width = width_bp[[i]],
-            candidate_height = height_y[[i]],
-            candidate_text_width = label_data$label_text_width[[i]],
-            candidate_text_height = label_data$label_text_height[[i]],
-            placed = placed,
-            segment = segment,
-            y_span = y_span,
-            text_angle = text_angle,
-            padding_x = label_padding_x,
-            padding_y = label_padding_y
-          )
-          if (!overlap) {
-            break
-          }
-          lane <- lane + 1L
+          ))
         }
       }
+      list(found = FALSE)
+    }
 
-      label_data$label_lane[[i]] <- lane
-      label_data$label_x[[i]] <- candidate_x
-      label_data$label_y[[i]] <- candidate_y
+    for (i in idx) {
+      candidates <- lapply(side_options, function(side) {
+        candidate_for_side(i, side)
+      })
+      found_candidates <- vapply(candidates, function(candidate) {
+        isTRUE(candidate$found)
+      }, logical(1L))
+      if (!any(found_candidates)) {
+        if (!allow_gene_line_crossing && identical(label_side_mode, "top")) {
+          removed_indices <- c(removed_indices, i)
+        }
+        next
+      }
+      candidate_indices <- which(found_candidates)
+      if (length(candidate_indices) > 1L) {
+        candidate_score <- vapply(candidates[candidate_indices], function(candidate) {
+          side_name <- if (candidate$side > 0) "top" else "bottom"
+          candidate$lane + side_counts[[side_name]] * 0.001
+        }, numeric(1L))
+        chosen_index <- candidate_indices[which.min(candidate_score)]
+      } else {
+        chosen_index <- candidate_indices[[1L]]
+      }
+      chosen <- candidates[[chosen_index]]
+      side_name <- if (chosen$side > 0) "top" else "bottom"
+      side_counts[[side_name]] <- side_counts[[side_name]] + 1L
+      label_data$label_lane[[i]] <- chosen$lane
+      label_data$label_x[[i]] <- chosen$x
+      label_data$label_y[[i]] <- chosen$y
+      label_data$linear_label_initial_x[[i]] <- chosen$base_x
+      label_data$linear_label_initial_y[[i]] <- chosen$base_y
+      label_data$linear_label_vertical_sign[[i]] <- chosen$side
       placed <- rbind(
         placed,
         data.frame(
-          center_x = candidate_x,
-          center_y = candidate_y,
+          center_x = chosen$x,
+          center_y = chosen$y,
           box_width = width_bp[[i]],
           box_height = height_y[[i]],
           text_width = label_data$label_text_width[[i]],
@@ -675,6 +779,7 @@ linear_label_layout <- function(label_data, segment, rows = 4,
         )
       )
     }
+    placed_global <- placed
   }
 
   removed_labels <- if (length(removed_indices)) {
@@ -688,7 +793,12 @@ linear_label_layout <- function(label_data, segment, rows = 4,
   label_data <- label_data[kept_indices, , drop = FALSE]
   label_data$linear_label_base_x <- initial_x[kept_indices]
   label_data$linear_label_base_y <- initial_y[kept_indices]
-  label_data$linear_label_side <- label_side[kept_indices]
+  label_data$linear_label_side <- horizontal_side[kept_indices]
+  label_data$linear_label_gene_y <- ifelse(
+    label_data$linear_label_vertical_sign < 0,
+    label_data$line_y_bottom,
+    label_data$line_y0
+  )
   label_data$linear_label_has_leader <- label_data$label_lane > 0L
   label_data <- linear_label_leader_endpoints(
     label_data,
@@ -709,7 +819,10 @@ linear_label_layout <- function(label_data, segment, rows = 4,
     n_removed = length(removed_indices),
     n_removed_cross_gene_line = length(removed_indices),
     removed_labels = removed_labels,
-    allow_gene_line_crossing = allow_gene_line_crossing
+    allow_gene_line_crossing = allow_gene_line_crossing,
+    side_requested = label_side_mode,
+    n_top = sum(label_data$linear_label_vertical_sign > 0),
+    n_bottom = sum(label_data$linear_label_vertical_sign < 0)
   )
   label_data
 }
@@ -1960,24 +2073,57 @@ resolve_label_text_colours <- function(label_data, feature_colors,
     return(rep("black", n))
   }
 
-  if (length(label_text_colour) == 1L &&
-      identical(unname(label_text_colour), "category")) {
-    colours <- unname(feature_colors[as.character(label_data$category)])
-    colours[is.na(colours)] <- "black"
-    return(colours)
+  column_name <- NULL
+  if (length(label_text_colour) == 1L && is.character(label_text_colour)) {
+    requested_name <- label_text_colour[[1L]]
+    exact_match <- requested_name %in% names(label_data)
+    normalised_matches <- which(
+      normalise_key(names(label_data)) == normalise_key(requested_name)
+    )
+    if (exact_match) {
+      column_name <- requested_name
+    } else if (length(normalised_matches) == 1L) {
+      column_name <- names(label_data)[[normalised_matches[[1L]]]]
+    }
   }
 
-  if (!is.null(names(label_text_colour)) && any(nzchar(names(label_text_colour)))) {
-    colours <- unname(label_text_colour[as.character(label_data$category)])
-    colours[is.na(colours)] <- "black"
-    return(colours)
+  if (!is.null(column_name)) {
+    colours <- as.character(label_data[[column_name]])
+    source <- paste0("annotation column `", column_name, "`")
+  } else if (length(label_text_colour) == n) {
+    colours <- as.character(label_text_colour)
+    source <- "colour vector"
+  } else if (length(label_text_colour) == 1L) {
+    colours <- rep(as.character(label_text_colour[[1L]]), n)
+    source <- "fixed colour"
+  } else {
+    stop(
+      "`label_text_colour` must be a fixed colour, a column name in the " ,
+      "annotation table, or a vector with one colour per label.",
+      call. = FALSE
+    )
   }
 
-  if (length(label_text_colour) == n) {
-    return(as.character(label_text_colour))
+  missing <- is.na(colours) | !nzchar(trimws(colours))
+  colours[missing] <- "black"
+  valid <- vapply(
+    colours,
+    function(value) {
+      tryCatch({
+        grDevices::col2rgb(value)
+        TRUE
+      }, error = function(error) FALSE)
+    },
+    logical(1L)
+  )
+  if (any(!valid)) {
+    stop(
+      "Values from ", source, " are not valid R colours: ",
+      paste(unique(colours[!valid]), collapse = ", "),
+      call. = FALSE
+    )
   }
-
-  rep(as.character(label_text_colour[[1L]]), n)
+  colours
 }
 
 circular_feature_label_overlay <- function(label_data, genome_length,
@@ -2193,7 +2339,7 @@ plot_circular_plasmid <- function(features, genome_length, name = NULL,
                                   show_ruler = TRUE,
                                   ruler_major_bp = NULL,
                                   ruler_minor_bp = NULL,
-                                  palette = "default",
+                                  palette = "npg",
                                   gene_highlight = NULL,
                                   gene_radius = 1,
                                   gene_height = 0.10,
@@ -2444,6 +2590,16 @@ plot_circular_plasmid <- function(features, genome_length, name = NULL,
     )
   }
 
+  gc_colour_scale <- if (!is.null(gc_skew)) {
+    ggplot2::scale_colour_manual(
+      values = gc_colors,
+      breaks = names(gc_colors),
+      drop = TRUE
+    )
+  } else {
+    NULL
+  }
+
   p <- p +
     geom_plasmid_text_overlay(
       center_text_overlay(name, genome_length),
@@ -2461,11 +2617,7 @@ plot_circular_plasmid <- function(features, genome_length, name = NULL,
       drop = TRUE,
       na.value = "#999999"
     ) +
-    ggplot2::scale_colour_manual(
-      values = gc_colors,
-      breaks = names(gc_colors),
-      drop = TRUE
-    ) +
+    gc_colour_scale +
     ggplot2::labs(fill = NULL, colour = NULL) +
     ggplot2::guides(
       fill = ggplot2::guide_legend(
@@ -2522,7 +2674,7 @@ plot_linear_plasmid <- function(features, genome_length, name = NULL, rows = 4,
                                 label_pattern = NULL, max_labels = Inf,
                                 label_min_gap_deg = 0,
                                 min_feature_bp = 1,
-                                palette = "default",
+                                palette = "npg",
                                 gene_highlight = NULL,
                                 gene_height = 0.38,
                                 gene_linewidth = 0.24,
@@ -2549,6 +2701,7 @@ plot_linear_plasmid <- function(features, genome_length, name = NULL, rows = 4,
                                 linear_label_allow_gene_line_crossing = FALSE,
                                 linear_label_line_angle = 90,
                                 linear_label_text_angle = 0,
+                                linear_label_side = "top",
                                 row_label_text_size = 3.4,
                                 legend_position = "right",
                                 legend_text_size = 8.5,
@@ -2573,6 +2726,10 @@ plot_linear_plasmid <- function(features, genome_length, name = NULL, rows = 4,
       linear_label_line_angle < 0 || linear_label_line_angle > 180) {
     stop("`linear_label_line_angle` must be between 0 and 180 degrees.", call. = FALSE)
   }
+  linear_label_side <- match.arg(
+    linear_label_side,
+    c("top", "both")
+  )
   plot_colors <- ggplasmid_resolve_colors(
     category_scheme,
     palette = palette,
@@ -2612,8 +2769,10 @@ plot_linear_plasmid <- function(features, genome_length, name = NULL, rows = 4,
 
   p <- ggplot2::ggplot()
   label_y_limit <- -Inf
+  label_y_min <- Inf
   gc_track_y_min <- -Inf
   gc_row_upper_limits <- rep(Inf, rows)
+  gc_row_lower_limits <- rep(Inf, rows)
   linear_label_summary <- list(
     n_requested = 0L,
     n_placed = 0L,
@@ -2652,6 +2811,7 @@ plot_linear_plasmid <- function(features, genome_length, name = NULL, rows = 4,
       },
       numeric(1L)
     )
+    gc_row_lower_limits <- gc_row_lower
     if (rows > 1L) {
       gc_row_upper_limits[seq.int(2L, rows)] <-
         gc_row_lower[seq.int(1L, rows - 1L)] - 0.02
@@ -2726,6 +2886,11 @@ plot_linear_plasmid <- function(features, genome_length, name = NULL, rows = 4,
       plot_colors,
       label_text_colour = label_text_colour
     )
+    label_data$line_colour <- resolve_label_text_colours(
+      label_data,
+      plot_colors,
+      label_text_colour = label_line_colour
+    )
     layout_input <- label_data
     layout_for_angle <- function(angle) {
       linear_label_layout(
@@ -2742,7 +2907,9 @@ plot_linear_plasmid <- function(features, genome_length, name = NULL, rows = 4,
         row_spacing = linear$row_spacing,
         line_angle = linear_label_line_angle,
         text_angle = angle,
-        row_upper_limits = gc_row_upper_limits
+        row_upper_limits = gc_row_upper_limits,
+        row_lower_limits = gc_row_lower_limits,
+        label_side = linear_label_side
       )
     }
     used_text_angle <- linear_label_text_angle
@@ -2810,6 +2977,11 @@ plot_linear_plasmid <- function(features, genome_length, name = NULL, rows = 4,
         max(label_data$label_y + label_data$label_box_height / 2, na.rm = TRUE),
         na.rm = TRUE
       )
+      label_y_min <- min(
+        label_y_min,
+        min(label_data$label_y - label_data$label_box_height / 2, na.rm = TRUE),
+        na.rm = TRUE
+      )
       plot_x_min <- min(
         plot_x_min,
         min(label_data$label_x - label_data$label_box_width / 2, na.rm = TRUE)
@@ -2820,36 +2992,74 @@ plot_linear_plasmid <- function(features, genome_length, name = NULL, rows = 4,
       )
       leader_data <- label_data[label_data$linear_label_has_leader, , drop = FALSE]
       if (nrow(leader_data)) {
-        leader_colour <- if (identical(label_line_colour, "category")) {
-          leader_data$label_colour
-        } else {
-          label_line_colour
+        for (leader_colour in unique(leader_data$line_colour)) {
+          colour_data <- leader_data[
+            leader_data$line_colour == leader_colour,
+            ,
+            drop = FALSE
+          ]
+          p <- p +
+            ggplot2::geom_segment(
+              data = colour_data,
+              ggplot2::aes(
+                x = xmid_linear,
+                xend = line_x1,
+                y = linear_label_gene_y,
+                yend = line_y1
+              ),
+              inherit.aes = FALSE,
+              colour = I(leader_colour),
+              linewidth = label_linewidth,
+              linetype = label_line_linetype
+            )
         }
+      }
+      for (label_colour in unique(label_data$label_colour)) {
+        colour_data <- label_data[
+          label_data$label_colour == label_colour,
+          ,
+          drop = FALSE
+        ]
         p <- p +
-          ggplot2::geom_segment(
-            data = leader_data,
-            ggplot2::aes(x = xmid_linear, xend = line_x1, y = line_y0, yend = line_y1),
+          ggplot2::geom_text(
+            data = colour_data,
+            ggplot2::aes(x = text_x, y = text_y, label = label),
             inherit.aes = FALSE,
-            colour = leader_colour,
-            linewidth = label_linewidth,
-            linetype = label_line_linetype
+            angle = used_text_angle,
+            hjust = if (abs(used_text_angle %% 180) < 1e-10) 0.5 else 0,
+            vjust = 0.5,
+            colour = I(label_colour),
+            size = label_text_size,
+            fontface = "bold",
+            family = font_family,
+            lineheight = 0.90
           )
       }
-      p <- p +
-        ggplot2::geom_text(
-          data = label_data,
-          ggplot2::aes(x = text_x, y = text_y, label = label),
-          inherit.aes = FALSE,
-          angle = used_text_angle,
-          hjust = if (abs(used_text_angle %% 180) < 1e-10) 0.5 else 0,
-          vjust = 0.5,
-          colour = label_data$label_colour,
-          size = label_text_size,
-          fontface = "bold",
-          family = font_family,
-          lineheight = 0.90
-        )
     }
+  }
+
+  label_colours_for_scale <- if (nrow(label_data) &&
+    all(c("label_colour", "line_colour") %in% names(label_data))) {
+    unique(c(label_data$label_colour, label_data$line_colour))
+  } else {
+    character()
+  }
+  label_colours_for_scale <- label_colours_for_scale[
+    nzchar(label_colours_for_scale) &
+      !label_colours_for_scale %in% names(gc_colors)
+  ]
+  colour_scale_values <- c(
+    gc_colors,
+    stats::setNames(label_colours_for_scale, label_colours_for_scale)
+  )
+  gc_colour_scale <- if (!is.null(gc_skew)) {
+    ggplot2::scale_colour_manual(
+      values = colour_scale_values,
+      breaks = names(gc_colors),
+      drop = TRUE
+    )
+  } else {
+    NULL
   }
 
   p <- p +
@@ -2865,10 +3075,11 @@ plot_linear_plasmid <- function(features, genome_length, name = NULL, rows = 4,
     ggplot2::coord_cartesian(
       xlim = c(plot_x_min, plot_x_max),
       ylim = c(
-        min(
-          min(linear$row_y, na.rm = TRUE) - 0.55,
-          if (is.finite(gc_track_y_min)) gc_track_y_min - 0.10 else Inf
-        ),
+          min(
+            min(linear$row_y, na.rm = TRUE) - 0.55,
+          if (is.finite(gc_track_y_min)) gc_track_y_min - 0.10 else Inf,
+          if (is.finite(label_y_min)) label_y_min - 0.25 else Inf
+          ),
         max(
           max(linear$row_y, na.rm = TRUE) + 0.75,
           if (is.finite(label_y_limit)) {
@@ -2886,11 +3097,7 @@ plot_linear_plasmid <- function(features, genome_length, name = NULL, rows = 4,
       drop = TRUE,
       na.value = "#999999"
     ) +
-    ggplot2::scale_colour_manual(
-      values = gc_colors,
-      breaks = names(gc_colors),
-      drop = TRUE
-    ) +
+    gc_colour_scale +
     ggplot2::labs(fill = NULL, colour = NULL) +
     ggplot2::guides(
       fill = ggplot2::guide_legend(
@@ -2941,8 +3148,10 @@ plot_linear_plasmid <- function(features, genome_length, name = NULL, rows = 4,
 #' Draw a plasmid map
 #'
 #' @param annotation A data frame or path to a CSV/TSV annotation table.
-#' @param gbk Optional GenBank file.
-#' @param fasta Optional FASTA file for GC-skew calculation and length inference.
+#' @param gbk Optional GenBank file. Its `ORIGIN` sequence is used directly for
+#'   genome length and GC-track calculation when present.
+#' @param fasta Optional FASTA file for annotation-table input, or as an
+#'   alternative sequence source when the GenBank record has no `ORIGIN`.
 #' @param skew_table Optional precomputed GC-skew table with `position` and `gc_skew`.
 #' @param output Optional output path. When supplied, the plot is saved and
 #'   invisibly returned.
@@ -2951,13 +3160,15 @@ plot_linear_plasmid <- function(features, genome_length, name = NULL, rows = 4,
 #'   `layout = "circular"`; `"linear"` adds a terminal boundary line.
 #' @param name Display name.
 #' @param genome_length Optional plasmid/genome length.
+#' @param region_start,region_end Optional 1-based inclusive coordinates for
+#'   the sequence window to display. Features are filtered and rebased to the
+#'   window; sequence-derived GC tracks and FASTA records are sliced to match.
 #' @param feature_types GenBank feature types to keep.
 #' @param label_mode `"auto"` prefers compact gene labels, `"product"` uses
 #'   product names, and `"gene"` prefers gene IDs.
 #' @param category_scheme Either `"plasmid"` or `"phage"`.
-#' @param palette Color palette. `"default"` uses ggplasmid colors; when
-#'   `ggsci` is installed, common ggsci palette names such as `"npg"`,
-#'   `"aaas"`, `"lancet"`, `"jco"`, `"ucscgb"`, `"d3"`, and `"igv"` can be used.
+#' @param palette A ggsci palette name: `"npg"`, `"aaas"`, `"lancet"`,
+#'   `"jco"`, `"ucscgb"`, `"d3"`, or `"igv"`.
 #' @param gene_highlight Optional named character vector, or data frame with
 #'   category/color columns, used to override specific category colors.
 #' @param rows Number of rows for linear layout.
@@ -3016,13 +3227,18 @@ plot_linear_plasmid <- function(features, genome_length, name = NULL, rows = 4,
 #'   vertical fallback angles are tested and the best-fitting angle is used.
 #'   Use `0` to keep text horizontal and use `linear_label_line_angle` for the
 #'   connector.
+#' @param linear_label_side Which side of each linear gene may receive labels:
+#'   `"top"` (the default) or `"both"`. In `"both"` mode labels are packed
+#'   independently above and below each genome row.
 #' @param label_line_angle,label_text_angle Short aliases for the two linear
 #'   label-angle parameters. When supplied, they override the corresponding
 #'   `linear_` values.
 #' @param linear_row_spacing Vertical distance between adjacent linear genome
 #'   rows.
 #' @param label_line_colour,label_linewidth,label_line_linetype Label leader
-#'   line colour, width, and linetype.
+#'   line colour, width, and linetype. `label_line_colour` may be a fixed R
+#'   colour, a vector with one colour per label, or the name of any annotation
+#'   column containing valid R colours.
 #' @param label_adjust Manual label shifts for either layout. Use [label_adjust()], a
 #'   data frame with `label`, `hjust`, and `vjust` columns, or a list with those
 #'   entries. A data frame may use `gene` or `gene_id` instead of `label`.
@@ -3061,9 +3277,9 @@ plot_linear_plasmid <- function(features, genome_length, name = NULL, rows = 4,
 #' @param sequence_linewidth Linear layout baseline width.
 #' @param label_text_size,ruler_text_size,center_text_size,legend_text_size Text
 #'   sizes.
-#' @param label_text_colour Label text colour. Use `"black"` for one fixed
-#'   colour, `"category"` to match each label to its gene category colour, or a
-#'   named vector such as `c("Antimicrobial resistance" = "#B2182B")`.
+#' @param label_text_colour Label text colour. Use a fixed R colour such as
+#'   `"black"`, a vector with one colour per label, or the name of any
+#'   annotation column containing valid R colours.
 #' @param label_anchor_radius Starting radius for outside circular labels.
 #'   Increase it to push labels farther from the gene ring.
 #' @param row_label_text_size Text size for linear row labels.
@@ -3112,13 +3328,14 @@ ggplasmid <- function(annotation = NULL, gbk = NULL, fasta = NULL, skew_table = 
                       output = NULL, layout = c("circular", "linear"),
                       phage_topology = c("circular", "linear"),
                       name = NULL, genome_length = NULL,
+                      region_start = NULL, region_end = NULL,
                       feature_types = c(
                         "CDS", "tRNA", "rRNA", "tmRNA", "ncRNA",
                         "rep_origin", "mobile_element"
                       ),
                       label_mode = c("auto", "product", "gene"),
                       category_scheme = c("plasmid", "phage"),
-                      palette = "default", gene_highlight = NULL,
+                      palette = "npg", gene_highlight = NULL,
                       rows = 4, genome_line_num = NULL, plot_line_num = NULL,
                       show_gc_skew = TRUE, show_labels = TRUE,
                       label_unknown = FALSE, label_pattern = NULL,
@@ -3135,6 +3352,7 @@ ggplasmid <- function(annotation = NULL, gbk = NULL, fasta = NULL, skew_table = 
                       linear_label_allow_gene_line_crossing = FALSE,
                       linear_label_line_angle = 90,
                       linear_label_text_angle = 0,
+                      linear_label_side = "top",
                       label_line_angle = NULL,
                       label_text_angle = NULL,
                       label_line_colour = "grey70",
@@ -3206,7 +3424,14 @@ ggplasmid <- function(annotation = NULL, gbk = NULL, fasta = NULL, skew_table = 
     gbk = gbk,
     feature_types = feature_types
   )
-  fasta_data <- if (!is.null(fasta)) read_plasmid_fasta(fasta) else NULL
+  annotation_sequence <- attr(annotation_data, "sequence", exact = TRUE) %||% ""
+  has_annotation_sequence <- is.character(annotation_sequence) &&
+    length(annotation_sequence) == 1L && nzchar(annotation_sequence)
+  fasta_data <- if (!is.null(fasta) && !has_annotation_sequence) {
+    read_plasmid_fasta(fasta)
+  } else {
+    NULL
+  }
 
   features <- prepare_plasmid_features(
     annotation = annotation_data,
@@ -3216,6 +3441,24 @@ ggplasmid <- function(annotation = NULL, gbk = NULL, fasta = NULL, skew_table = 
     label_mode = label_mode,
     category_scheme = category_scheme
   )
+  full_genome_length <- attr(features, "genome_length", exact = TRUE)
+  region <- resolve_plot_region(
+    region_start = region_start,
+    region_end = region_end,
+    genome_length = full_genome_length
+  )
+  if (isTRUE(region$active)) {
+    annotation_data <- subset_annotation_to_region(annotation_data, region)
+    fasta_data <- subset_fasta_to_region(fasta_data, region)
+    if (!is.null(skew_table)) {
+      skew_table <- subset_gc_table_to_region(skew_table, region)
+    }
+    features <- subset_features_to_region(
+      features,
+      region = region,
+      full_genome_length = full_genome_length
+    )
+  }
   genome_length <- attr(features, "genome_length", exact = TRUE)
   name <- name %||% attr(features, "name", exact = TRUE) %||% "plasmid"
   sequence <- attr(features, "sequence", exact = TRUE) %||% ""
@@ -3401,6 +3644,7 @@ ggplasmid <- function(annotation = NULL, gbk = NULL, fasta = NULL, skew_table = 
       linear_label_allow_gene_line_crossing = linear_label_allow_gene_line_crossing,
       linear_label_line_angle = linear_label_line_angle,
       linear_label_text_angle = linear_label_text_angle,
+      linear_label_side = linear_label_side,
       row_label_text_size = row_label_text_size,
       legend_position = legend_position,
       legend_text_size = legend_text_size,
@@ -3427,6 +3671,7 @@ ggplasmid <- function(annotation = NULL, gbk = NULL, fasta = NULL, skew_table = 
     gc_skew = gc_skew,
     genome_length = genome_length,
     name = name,
+    region = region,
     linear_label_summary = attr(p, "ggplasmid_linear_label_summary", exact = TRUE)
   )
 
@@ -3435,6 +3680,140 @@ ggplasmid <- function(annotation = NULL, gbk = NULL, fasta = NULL, skew_table = 
     return(invisible(p))
   }
   p
+}
+
+resolve_plot_region <- function(region_start = NULL, region_end = NULL,
+                                genome_length) {
+  genome_length <- as.numeric(genome_length[[1L]])
+  if (!is.finite(genome_length) || genome_length < 1) {
+    stop("A finite genome length is required before selecting a sequence region.",
+         call. = FALSE)
+  }
+  start <- if (is.null(region_start)) 1 else as.numeric(region_start[[1L]])
+  end <- if (is.null(region_end)) genome_length else as.numeric(region_end[[1L]])
+  if (!is.finite(start) || !is.finite(end) || start != floor(start) ||
+      end != floor(end) || start < 1 || end < start || end > genome_length) {
+    stop(
+      "`region_start` and `region_end` must be integer coordinates within the " ,
+      "genome, with `region_start <= region_end`.",
+      call. = FALSE
+    )
+  }
+  start <- as.integer(start)
+  end <- as.integer(end)
+  list(
+    start = start,
+    end = end,
+    length = end - start + 1L,
+    active = start != 1L || end != as.integer(genome_length)
+  )
+}
+
+subset_annotation_to_region <- function(annotation, region) {
+  if (is.null(annotation) || !nrow(annotation)) {
+    return(annotation)
+  }
+  start_col <- find_column(
+    annotation,
+    c("start", "begin", "from", "left"),
+    required = FALSE
+  )
+  end_col <- find_column(
+    annotation,
+    c("end", "stop", "to", "right"),
+    required = FALSE
+  )
+  if (is.na(start_col) || is.na(end_col)) {
+    return(annotation)
+  }
+  start <- as_number(annotation[[start_col]])
+  end <- as_number(annotation[[end_col]])
+  keep <- is.finite(start) & is.finite(end) &
+    pmax(start, end) >= region$start & pmin(start, end) <= region$end
+  annotation[keep, , drop = FALSE]
+}
+
+subset_fasta_to_region <- function(fasta_data, region) {
+  if (is.null(fasta_data) || !nrow(fasta_data)) {
+    return(fasta_data)
+  }
+  out <- as.data.frame(fasta_data, stringsAsFactors = FALSE)
+  out$sequence <- vapply(
+    out$sequence,
+    function(sequence) substring(as.character(sequence), region$start, region$end),
+    character(1L)
+  )
+  out$length <- nchar(out$sequence)
+  if (!"name" %in% names(out)) {
+    out$name <- paste0("sequence_", seq_len(nrow(out)))
+  }
+  if (!"description" %in% names(out)) {
+    out$description <- out$name
+  }
+  out$fasta <- format_plasmid_fasta(out[c("name", "description", "sequence", "length")])
+  out
+}
+
+subset_gc_table_to_region <- function(skew_table, region) {
+  if (is.null(skew_table)) {
+    return(skew_table)
+  }
+  skew <- read_gc_skew_table(skew_table)
+  skew <- skew[
+    is.finite(skew$position) &
+      skew$position >= region$start & skew$position <= region$end,
+    ,
+    drop = FALSE
+  ]
+  skew$position <- skew$position - region$start + 1
+  skew
+}
+
+subset_features_to_region <- function(features, region, full_genome_length) {
+  if (!isTRUE(region$active)) {
+    return(features)
+  }
+  pieces <- list()
+  for (i in seq_len(nrow(features))) {
+    start <- as.numeric(features$start[[i]])
+    end <- as.numeric(features$end[[i]])
+    if (!is.finite(start) || !is.finite(end)) {
+      next
+    }
+    wraps_origin <- "wraps_origin" %in% names(features) &&
+      isTRUE(features$wraps_origin[[i]]) && start > end
+    intervals <- if (wraps_origin) {
+      list(c(start, full_genome_length), c(1, end))
+    } else {
+      list(c(min(start, end), max(start, end)))
+    }
+    for (interval in intervals) {
+      if (interval[[2L]] < region$start || interval[[1L]] > region$end) {
+        next
+      }
+      row <- features[i, , drop = FALSE]
+      row$start <- max(interval[[1L]], region$start) - region$start + 1
+      row$end <- min(interval[[2L]], region$end) - region$start + 1
+      row$wraps_origin <- FALSE
+      pieces[[length(pieces) + 1L]] <- row
+    }
+  }
+  if (!length(pieces)) {
+    stop("No annotation features overlap the selected sequence region.", call. = FALSE)
+  }
+  out <- do.call(rbind, pieces)
+  row.names(out) <- NULL
+  out$feature_id <- seq_len(nrow(out))
+  out$xmid <- feature_midpoint(out$start, out$end, region$length)
+  sequence <- attr(features, "sequence", exact = TRUE) %||% ""
+  attr(out, "genome_length") <- region$length
+  attr(out, "name") <- attr(features, "name", exact = TRUE)
+  attr(out, "sequence") <- if (nzchar(sequence)) {
+    substring(sequence, region$start, region$end)
+  } else {
+    ""
+  }
+  out
 }
 
 #' Draw a plasmid map
@@ -3449,7 +3828,7 @@ plot_plasmid_map <- ggplasmid
 #'
 #' @param plot A plot returned by [ggplasmid()] or [plot_phage_map()].
 #' @return A list containing `annotation`, `fasta`, `features`, `gc_skew`,
-#'   `genome_length`, and `name`.
+#'   `genome_length`, `name`, and the selected `region`.
 #' @export
 plasmid_data <- function(plot) {
   data <- attr(plot, "ggplasmid_data", exact = TRUE)
@@ -3473,12 +3852,13 @@ plot_phage_map <- function(annotation = NULL, gbk = NULL, fasta = NULL,
                            layout = c("circular", "linear"),
                            phage_topology = c("circular", "linear"),
                            name = NULL, genome_length = NULL,
+                           region_start = NULL, region_end = NULL,
                            feature_types = c(
                              "CDS", "tRNA", "rRNA", "tmRNA", "ncRNA",
                              "rep_origin", "mobile_element"
                            ),
                            label_mode = c("auto", "product", "gene"),
-                           palette = "default", gene_highlight = NULL,
+                           palette = "npg", gene_highlight = NULL,
                            rows = 4, genome_line_num = NULL, plot_line_num = NULL,
                            show_gc_skew = TRUE,
                            show_labels = TRUE,
@@ -3498,6 +3878,7 @@ plot_phage_map <- function(annotation = NULL, gbk = NULL, fasta = NULL,
                            linear_label_allow_gene_line_crossing = FALSE,
                            linear_label_line_angle = 90,
                            linear_label_text_angle = 0,
+                           linear_label_side = "top",
                            label_line_angle = NULL,
                            label_text_angle = NULL,
                            label_line_colour = "grey70",
@@ -3553,6 +3934,8 @@ plot_phage_map <- function(annotation = NULL, gbk = NULL, fasta = NULL,
     phage_topology = match.arg(phage_topology),
     name = name,
     genome_length = genome_length,
+    region_start = region_start,
+    region_end = region_end,
     feature_types = feature_types,
     label_mode = match.arg(label_mode),
     category_scheme = "phage",
@@ -3578,10 +3961,11 @@ plot_phage_map <- function(annotation = NULL, gbk = NULL, fasta = NULL,
     label_lane_step = label_lane_step,
     linear_label_offset = linear_label_offset,
     linear_label_lane_step = linear_label_lane_step,
-    linear_label_allow_gene_line_crossing = linear_label_allow_gene_line_crossing,
-    linear_label_line_angle = linear_label_line_angle,
-    linear_label_text_angle = linear_label_text_angle,
-    label_line_angle = label_line_angle,
+        linear_label_allow_gene_line_crossing = linear_label_allow_gene_line_crossing,
+        linear_label_line_angle = linear_label_line_angle,
+        linear_label_text_angle = linear_label_text_angle,
+        linear_label_side = linear_label_side,
+        label_line_angle = label_line_angle,
     label_text_angle = label_text_angle,
     label_line_colour = label_line_colour,
     label_linewidth = label_linewidth,

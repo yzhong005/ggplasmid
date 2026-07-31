@@ -4,6 +4,8 @@ Version: 0.1.0
 Authors@R: c(
     person("Zhong", "Yang", role = c("aut", "cre"), email = "yzhong005@e.ntu.edu.sg")
   )
+Author: Zhong Yang [aut, cre]
+Maintainer: Zhong Yang <yzhong005@e.ntu.edu.sg>
 Description: Generate publication-quality genetic maps, with particular
     suitability for plasmids and bacteriophages. Built entirely within the
     ggplot2 framework, ggplasmidZY supports both circular and linear plotting of
@@ -13,8 +15,7 @@ Description: Generate publication-quality genetic maps, with particular
     mobile genetic elements, and other labeled features. It can also plot
     circular or linear bacteriophage genome maps, including a terminal marker
     option for linear phage genomes. The package provides a curated catalogue of
-    color palettes for genetic features and labels, and supports palettes from
-    ggsci.
+    named color palettes from ggsci.
 License: MIT + file LICENSE
 URL: https://github.com/yzhong005/ggplasmidZY
 BugReports: https://github.com/yzhong005/ggplasmidZY/issues

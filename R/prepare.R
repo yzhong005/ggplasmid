@@ -32,7 +32,8 @@ choose_plot_label <- function(label, gene_id, type, label_mode) {
 #' @param annotation A data frame or path to a CSV/TSV annotation table.
 #' @param gbk Optional GenBank file.
 #' @param genome_length Optional genome/plasmid length.
-#' @param fasta Optional FASTA file used only to infer length when needed.
+#' @param fasta Optional FASTA file for annotation-table input or when a
+#'   GenBank record has no `ORIGIN` sequence.
 #' @param feature_types GenBank feature types to keep.
 #' @param label_mode `"auto"` prefers short gene symbols when available,
 #'   `"product"` uses product/annotation text, and `"gene"` prefers gene IDs.
@@ -162,6 +163,13 @@ prepare_plasmid_features <- function(annotation = NULL, gbk = NULL,
     label = vapply(plot_label, wrap_label, character(1)),
     stringsAsFactors = FALSE
   )
+
+  # Keep user-supplied annotation columns available for label colours and
+  # other downstream styling controls.
+  extra_columns <- setdiff(names(raw), names(features))
+  for (column in extra_columns) {
+    features[[column]] <- raw[[column]]
+  }
 
   features$wraps_origin <- wraps_origin
   features$xmid <- feature_midpoint(features$start, features$end, genome_length)
