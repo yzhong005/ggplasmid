@@ -3177,7 +3177,7 @@ plot_linear_plasmid <- function(features, genome_length, name = NULL, rows = 4,
 #' @param category_scheme Either `"plasmid"` or `"phage"`.
 #' @param palette A ggsci palette name: `"npg"`, `"aaas"`, `"lancet"`,
 #'   `"jco"`, `"ucscgb"`, `"d3"`, `"igv"`, `"observable"`, `"nejm"`,
-#'   `"jama"`, or `"primer"`.
+#'   `"jama"`, `"primer"`, `"iterm"`, or `"futurama"`.
 #' @param gene_highlight Optional named character vector, or data frame with
 #'   category/color columns, used to override specific category colors.
 #' @param rows Number of rows for linear layout.

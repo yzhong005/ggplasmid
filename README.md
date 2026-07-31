@@ -59,7 +59,7 @@ p_circular <- ggplasmid(
   annotation = annotation,                    # gene features and ORIGIN sequence
   name = "pSGNDM-5",                          # plot title/name
   layout = "circular",                        # circular map
-  palette = "lancet",                         # ggsci palette; supported: "npg", "aaas", "lancet", "jco", "ucscgb", "d3", "igv", "observable", "nejm", "jama", "primer"
+  palette = "lancet",                         # ggsci palette; supported: "npg", "aaas", "lancet", "jco", "ucscgb", "d3", "igv", "observable", "nejm", "jama", "primer", "iterm", "futurama"
   gene_highlight = gene_highlight(
     "Unknown function, hypothetical protein" = "grey30"
   ),                                         # highlight unknown-function arrows
@@ -82,7 +82,7 @@ p_circular
 
 ### Linear map with default connector direction
 
-This is the recommended starting layout. It uses four genome lines and
+This is the recommended starting layout. It uses five genome lines and
 horizontal label text. The default vertical connector direction is used for
 this demo.
 
@@ -91,8 +91,8 @@ p_linear <- ggplasmid(
   annotation = annotation,                    # gene features and ORIGIN sequence
   name = "pSGNDM-5",                          # plot title/name
   layout = "linear",                          # linear map
-  palette = "npg",                            # ggsci palette; supported: "npg", "aaas", "lancet", "jco", "ucscgb", "d3", "igv", "observable", "nejm", "jama", "primer"
-  plot_line_num = 4,                           # number of genome lines
+  palette = "nejm",                           # ggsci palette; supported: "npg", "aaas", "lancet", "jco", "ucscgb", "d3", "igv", "observable", "nejm", "jama", "primer", "iterm", "futurama"
+  plot_line_num = 5,                           # number of genome lines
   max_labels = 36,                             # maximum labels to draw
   linear_label_wrap_width = 18,                # approximate label width
   linear_label_max_lines = 2,                  # never use more than two rows
@@ -113,7 +113,7 @@ p_linear <- ggplasmid(
 p_linear
 ```
 
-![pSGNDM-5 four-line linear map with GC tracks](man/figures/README-pSGNDM-5-linear-gc-safe.png)
+![pSGNDM-5 five-line linear map with GC tracks](man/figures/README-pSGNDM-5-linear-nejm-five.png)
 
 The quick-start examples above use the packaged GenBank sequence directly.
 The data used by an existing plot can be retrieved with `plasmid_data(p)`. Set
@@ -247,7 +247,7 @@ Most plot geometry and text settings have defaults but can be tuned directly:
 ggplasmid(
   annotation = annotation,
   name = "pSGNDM-5",
-  palette = "npg", # ggsci palette; supported: "npg", "aaas", "lancet", "jco", "ucscgb", "d3", "igv", "observable", "nejm", "jama", "primer"
+  palette = "npg", # ggsci palette; supported: "npg", "aaas", "lancet", "jco", "ucscgb", "d3", "igv", "observable", "nejm", "jama", "primer", "iterm", "futurama"
   gene_highlight = gene_highlight(
     "Antimicrobial resistance" = "#B2182B",
     "Replication" = "#2166AC"
@@ -273,7 +273,7 @@ ggplasmid(
 
 `palette` accepts the ggsci palette names `"npg"`, `"aaas"`, `"lancet"`,
 `"jco"`, `"ucscgb"`, `"d3"`, `"igv"`, `"observable"`, `"nejm"`, `"jama"`,
-and `"primer"`. Use `ggplasmid_colors()` only when
+`"primer"`, `"iterm"`, and `"futurama"`. Use `ggplasmid_colors()` only when
 you want to inspect the built-in category names; `gene_highlight()` can also
 use the category values in your own annotation table. Circular `*_radius` settings
 are distances from the center of the plot to that ring.
