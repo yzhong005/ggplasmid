@@ -38,7 +38,7 @@ plot_phage_map(
   label_anchor_radius = 1.07,
   label_lane_spacing = 0.24,
   label_lane_step = NULL,
-  linear_label_offset = 0.06,
+  linear_label_offset = 0.14,
   linear_label_lane_step = NULL,
   linear_label_allow_gene_line_crossing = FALSE,
   linear_label_line_angle = 90,

@@ -44,7 +44,7 @@ gbk_file <- system.file("extdata", "pSGNDM_5.gbk", package = "ggplasmidZY")
 annotation <- read_plasmid_annotation(gbk = gbk_file) # annotation + ORIGIN sequence
 ```
 
-To plot your own plasmid or phage, read its GenBank file in the same way:
+To plot your own plasmid or phage, replace the example annotation with:
 
 ```r
 annotation <- read_gbk("path/to/your_genome.gbk")
@@ -60,6 +60,9 @@ p_circular <- ggplasmid(
   name = "pSGNDM-5",                          # plot title/name
   layout = "circular",                        # circular map
   palette = "lancet",                         # ggsci palette; try "npg", "aaas", "jco", "igv"
+  gene_highlight = gene_highlight(
+    "Unknown function, hypothetical protein" = "grey30"
+  ),                                         # highlight unknown-function arrows
   label_exclude_categories = "Other functions", # hide these labels only
   label_anchor_radius = 1.07,                  # start labels close to the gene ring
   label_line_length = 0.04,                    # small initial connector gap
@@ -95,6 +98,7 @@ p_linear <- ggplasmid(
   linear_label_max_lines = 2,                  # never use more than two rows
   linear_row_spacing = 4.0,                    # gap between genome lines
   linear_label_allow_gene_line_crossing = FALSE, # protect line and GC tracks above
+  linear_label_offset = 0.14,                  # keep two-line labels clear of arrows
   label_text_angle = 0,                        # keep label text horizontal
   gc_skew_height = 0.28,                       # taller GC-skew track
   gc_content_height = 0.14,                    # taller GC-content track
@@ -115,9 +119,11 @@ The quick-start examples above use the packaged GenBank sequence directly.
 The data used by an existing plot can be retrieved with `plasmid_data(p)`. Set
 `label_unknown = TRUE` to include unknown or hypothetical gene labels.
 
-The map can also be restricted to a fixed sequence region with
-`region_start` and `region_end`; see the [linear-map wiki page](https://github.com/yzhong005/ggplasmidZY/wiki/Linear-map)
-for this and the two-sided linear-label example.
+You can also display only a selected part of a plasmid or phage. Set the
+1-based inclusive `region_start` and `region_end` coordinates; features and
+sequence-derived GC tracks are clipped and rebased to that window. The
+[linear-map wiki page](https://github.com/yzhong005/ggplasmidZY/wiki/Linear-map)
+shows this together with the two-sided linear-label option.
 
 ## Label control
 
@@ -156,9 +162,14 @@ features <- data.frame(
   line_colour = c("#2166AC", "#8B4513", "#B2182B")
 )
 
+fasta <- read_fasta(
+  system.file("extdata", "pSGNDM_5.fasta", package = "ggplasmidZY")
+)
+
 ggplasmid(
   features,
-  genome_length = 5000,
+  fasta = fasta,
+  genome_length = fasta$length[[1]],
   name = "pExample",
   label_text_colour = "label_colour", # use a table colour column
   label_line_colour = "line_colour"    # use a table colour column
