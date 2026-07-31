@@ -271,13 +271,13 @@ ggplasmid(
 )
 ```
 
-`palette` accepts the ggsci palette names `"npg"`, `"aaas"`, `"lancet"`,
-`"jco"`, `"ucscgb"`, `"d3"`, `"igv"`, `"observable"`, `"nejm"`, `"jama"`,
-`"primer"`, `"iterm"`, `"futurama"`, and `"locuszoom"`. Use
-`ggplasmid_colors()` only when
-you want to inspect the built-in category names; `gene_highlight()` can also
-use the category values in your own annotation table. Circular `*_radius` settings
-are distances from the center of the plot to that ring.
+`palette` chooses the `ggsci` color palette used for the gene categories. For
+example, use `"npg"`, `"aaas"`, `"lancet"`, `"jco"`, or any of the other
+supported names listed in the styling documentation. `ggplasmid_colors()` is
+optional: it only returns the package's built-in category names and color
+mapping for inspection. You do not need it to choose a palette or create a
+plot. Circular `*_radius` settings are distances from the center of the plot
+to that ring.
 
 You can also add highlights after creating the plot:
 
