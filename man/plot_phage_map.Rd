@@ -127,8 +127,9 @@ window; sequence-derived GC tracks and FASTA records are sliced to match.}
 product names, and \code{"gene"} prefers gene IDs.}
 
 \item{palette}{A ggsci palette name: \code{"npg"}, \code{"aaas"},
-\code{"lancet"}, \code{"jco"}, \code{"ucscgb"}, \code{"d3"}, or
-\code{"igv"}.}
+\code{"lancet"}, \code{"jco"}, \code{"ucscgb"}, \code{"d3"},
+\code{"igv"}, \code{"observable"}, \code{"nejm"}, \code{"jama"}, or
+\code{"primer"}.}
 
 \item{gene_highlight}{Optional named character vector, or data frame with
 category/color columns, used to override specific category colors.}
@@ -291,7 +292,9 @@ colours.}
 \item{row_label_text_size}{Text size for linear row labels.}
 
 \item{legend_position}{Legend position passed to ggplot2, such as
-\code{"bottom"}, \code{"right"}, \code{"left"}, \code{"top"}, or \code{"none"}.}
+\code{"bottom"}, \code{"right"}, \code{"left"}, \code{"top"}, or
+\code{"none"}. Use \code{"left_top"} to place the legend inside the
+upper-left plot corner.}
 
 \item{legend_columns}{Number of columns in the feature-category legend. When
 omitted, right/left legends use one column and top/bottom legends use

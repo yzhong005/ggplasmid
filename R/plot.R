@@ -2646,8 +2646,8 @@ plot_circular_plasmid <- function(features, genome_length, name = NULL,
     radial_coord(theta = "x", start = 0, inner.radius = inner_radius, clip = "off", expand = FALSE) +
     ggplot2::theme_void(base_family = font_family) +
     ggplot2::theme(
-      legend.position = legend_position,
-      legend.justification = "center",
+      legend.position = legend_position_for_theme(legend_position),
+      legend.justification = legend_justification_for_theme(legend_position),
       legend.box = "vertical",
       legend.box.spacing = grid::unit(legend_plot_spacing, "cm"),
       legend.spacing.y = grid::unit(0.35, "cm"),
@@ -3124,7 +3124,8 @@ plot_linear_plasmid <- function(features, genome_length, name = NULL, rows = 4,
     ) +
     ggplot2::theme_void(base_family = font_family) +
     ggplot2::theme(
-      legend.position = legend_position,
+      legend.position = legend_position_for_theme(legend_position),
+      legend.justification = legend_justification_for_theme(legend_position),
       legend.box = "vertical",
       legend.box.spacing = grid::unit(legend_plot_spacing, "cm"),
       legend.spacing.y = grid::unit(0.35, "cm"),
@@ -3175,7 +3176,8 @@ plot_linear_plasmid <- function(features, genome_length, name = NULL, rows = 4,
 #'   product names, and `"gene"` prefers gene IDs.
 #' @param category_scheme Either `"plasmid"` or `"phage"`.
 #' @param palette A ggsci palette name: `"npg"`, `"aaas"`, `"lancet"`,
-#'   `"jco"`, `"ucscgb"`, `"d3"`, or `"igv"`.
+#'   `"jco"`, `"ucscgb"`, `"d3"`, `"igv"`, `"observable"`, `"nejm"`,
+#'   `"jama"`, or `"primer"`.
 #' @param gene_highlight Optional named character vector, or data frame with
 #'   category/color columns, used to override specific category colors.
 #' @param rows Number of rows for linear layout.
@@ -3292,7 +3294,8 @@ plot_linear_plasmid <- function(features, genome_length, name = NULL, rows = 4,
 #'   Increase it to push labels farther from the gene ring.
 #' @param row_label_text_size Text size for linear row labels.
 #' @param legend_position Legend position passed to ggplot2, such as
-#'   `"bottom"`, `"right"`, `"left"`, `"top"`, or `"none"`.
+#'   `"bottom"`, `"right"`, `"left"`, `"top"`, or `"none"`. Use
+#'   `"left_top"` to place the legend inside the upper-left plot corner.
 #' @param legend_columns Number of columns in the feature-category legend. When
 #'   omitted, right/left legends use one column and top/bottom legends use
 #'   three columns.

@@ -59,7 +59,7 @@ p_circular <- ggplasmid(
   annotation = annotation,                    # gene features and ORIGIN sequence
   name = "pSGNDM-5",                          # plot title/name
   layout = "circular",                        # circular map
-  palette = "lancet",                         # ggsci palette; supported: "npg", "aaas", "lancet", "jco", "ucscgb", "d3", "igv"
+  palette = "lancet",                         # ggsci palette; supported: "npg", "aaas", "lancet", "jco", "ucscgb", "d3", "igv", "observable", "nejm", "jama", "primer"
   gene_highlight = gene_highlight(
     "Unknown function, hypothetical protein" = "grey30"
   ),                                         # highlight unknown-function arrows
@@ -91,7 +91,7 @@ p_linear <- ggplasmid(
   annotation = annotation,                    # gene features and ORIGIN sequence
   name = "pSGNDM-5",                          # plot title/name
   layout = "linear",                          # linear map
-  palette = "npg",                            # ggsci palette; supported: "npg", "aaas", "lancet", "jco", "ucscgb", "d3", "igv"
+  palette = "npg",                            # ggsci palette; supported: "npg", "aaas", "lancet", "jco", "ucscgb", "d3", "igv", "observable", "nejm", "jama", "primer"
   plot_line_num = 4,                           # number of genome lines
   max_labels = 36,                             # maximum labels to draw
   linear_label_wrap_width = 18,                # approximate label width
@@ -132,26 +132,27 @@ wrapping, and omitted-label summaries, see the
 [Label control Wiki page](https://github.com/yzhong005/ggplasmidZY/wiki/Label-control).
 
 For a final small correction, move one selected label and its connector with
-`label_adjust`. Linear maps use `gene_id`; circular maps can use the full label
-text.
+the single-label form of `label_adjust()`. Linear maps can target a `gene_id`;
+circular maps can use the full label text.
 
 ```r
-linear_adjustments <- data.frame(
-  gene_id = "tetR",
-  hjust = 0.20,
-  vjust = 0.10
-)
-
 p_linear_adjusted <- ggplasmid(
   annotation = annotation,
   name = "pSGNDM-5",
   layout = "linear",
   plot_line_num = 4,
-  label_adjust = linear_adjustments
+  label_adjust = label_adjust(
+    "tetR",
+    hjust = 0.20,
+    vjust = 0.10
+  )
 )
 
 p_linear_adjusted
 ```
+
+`label_adjust()` also accepts a data frame or named list when several labels
+need adjustments; see the [Label control Wiki page](https://github.com/yzhong005/ggplasmidZY/wiki/Label-control).
 
 ## Annotation Table Input
 
@@ -246,7 +247,7 @@ Most plot geometry and text settings have defaults but can be tuned directly:
 ggplasmid(
   annotation = annotation,
   name = "pSGNDM-5",
-  palette = "npg", # ggsci palette; supported: "npg", "aaas", "lancet", "jco", "ucscgb", "d3", "igv"
+  palette = "npg", # ggsci palette; supported: "npg", "aaas", "lancet", "jco", "ucscgb", "d3", "igv", "observable", "nejm", "jama", "primer"
   gene_highlight = gene_highlight(
     "Antimicrobial resistance" = "#B2182B",
     "Replication" = "#2166AC"
@@ -264,14 +265,15 @@ ggplasmid(
   label_text_colour = "black",      # or an annotation-table colour column
   label_line_colour = "grey70",     # leader line color
   label_line_linetype = "dashed",   # leader line style
-  legend_position = "bottom",       # "right", "bottom", "left", "top", or "none"
+  legend_position = "bottom",       # "right", "bottom", "left", "left_top", "top", or "none"
   legend_columns = 3,               # feature-color legend columns
   gc_legend_columns = 3             # GC legend columns; 3 gives one row
 )
 ```
 
 `palette` accepts the ggsci palette names `"npg"`, `"aaas"`, `"lancet"`,
-`"jco"`, `"ucscgb"`, `"d3"`, and `"igv"`. Use `ggplasmid_colors()` only when
+`"jco"`, `"ucscgb"`, `"d3"`, `"igv"`, `"observable"`, `"nejm"`, `"jama"`,
+and `"primer"`. Use `ggplasmid_colors()` only when
 you want to inspect the built-in category names; `gene_highlight()` can also
 use the category values in your own annotation table. Circular `*_radius` settings
 are distances from the center of the plot to that ring.

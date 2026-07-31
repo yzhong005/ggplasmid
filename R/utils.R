@@ -75,9 +75,21 @@ strand_direction <- function(x) {
   ifelse(text %in% c("-", "-1", "minus", "reverse", "rev", "complement"), -1L, 1L)
 }
 
+legend_position_is_vertical <- function(position) {
+  position %in% c("right", "left", "left_top")
+}
+
+legend_position_for_theme <- function(position) {
+  if (identical(position, "left_top")) c(0, 1) else position
+}
+
+legend_justification_for_theme <- function(position) {
+  if (identical(position, "left_top")) c(0, 1) else "center"
+}
+
 validate_legend_columns <- function(columns = NULL, position = "bottom") {
   if (is.null(columns)) {
-    return(if (position %in% c("right", "left")) 1L else 3L)
+    return(if (legend_position_is_vertical(position)) 1L else 3L)
   }
   columns <- as.integer(columns)
   if (length(columns) != 1L || !is.finite(columns) || columns < 1L) {
@@ -88,7 +100,7 @@ validate_legend_columns <- function(columns = NULL, position = "bottom") {
 
 validate_gc_legend_columns <- function(columns = NULL, position = "bottom") {
   if (is.null(columns)) {
-    return(if (position %in% c("right", "left")) 1L else 3L)
+    return(if (legend_position_is_vertical(position)) 1L else 3L)
   }
   columns <- as.integer(columns)
   if (length(columns) != 1L || !is.finite(columns) || columns < 1L) {

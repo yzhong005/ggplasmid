@@ -159,7 +159,10 @@ ggplot_add.ggplasmid_gene_highlight <- function(object, plot, object_name) {
 }
 
 ggplasmid_resolve_colors <- function(scheme = c("plasmid", "phage"),
-                                     palette = c("npg", "aaas", "lancet", "jco", "ucscgb", "d3", "igv"),
+                                     palette = c(
+                                       "npg", "aaas", "lancet", "jco", "ucscgb", "d3", "igv",
+                                       "observable", "nejm", "jama", "primer"
+                                     ),
                                      gene_highlight = NULL) {
   scheme <- match.arg(scheme)
   palette <- match.arg(palette)
@@ -173,7 +176,11 @@ ggplasmid_resolve_colors <- function(scheme = c("plasmid", "phage"),
     jco = ggsci::pal_jco,
     ucscgb = ggsci::pal_ucscgb,
     d3 = ggsci::pal_d3,
-    igv = ggsci::pal_igv
+    igv = ggsci::pal_igv,
+    observable = ggsci::pal_observable,
+    nejm = ggsci::pal_nejm,
+    jama = ggsci::pal_jama,
+    primer = ggsci::pal_primer
   )
   generated <- suppressWarnings(pal_fun()(length(base)))
   available <- generated[!is.na(generated) & nzchar(generated)]
