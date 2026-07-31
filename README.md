@@ -59,7 +59,7 @@ p_circular <- ggplasmid(
   annotation = annotation,                    # gene features and ORIGIN sequence
   name = "pSGNDM-5",                          # plot title/name
   layout = "circular",                        # circular map
-  palette = "lancet",                         # ggsci palette; try "npg", "aaas", "jco", "igv"
+  palette = "lancet",                         # ggsci palette; supported: "npg", "aaas", "lancet", "jco", "ucscgb", "d3", "igv"
   gene_highlight = gene_highlight(
     "Unknown function, hypothetical protein" = "grey30"
   ),                                         # highlight unknown-function arrows
@@ -91,7 +91,7 @@ p_linear <- ggplasmid(
   annotation = annotation,                    # gene features and ORIGIN sequence
   name = "pSGNDM-5",                          # plot title/name
   layout = "linear",                          # linear map
-  palette = "npg",                            # ggsci palette; try "aaas", "lancet", "jco", "igv"
+  palette = "npg",                            # ggsci palette; supported: "npg", "aaas", "lancet", "jco", "ucscgb", "d3", "igv"
   plot_line_num = 4,                           # number of genome lines
   max_labels = 36,                             # maximum labels to draw
   linear_label_wrap_width = 18,                # approximate label width
@@ -131,12 +131,36 @@ For detailed circular and linear label placement, manual adjustments, label
 wrapping, and omitted-label summaries, see the
 [Label control Wiki page](https://github.com/yzhong005/ggplasmidZY/wiki/Label-control).
 
+For a final small correction, move one selected label and its connector with
+`label_adjust`. Linear maps use `gene_id`; circular maps can use the full label
+text.
+
+```r
+linear_adjustments <- data.frame(
+  gene_id = "tetR",
+  hjust = 0.20,
+  vjust = 0.10
+)
+
+p_linear_adjusted <- ggplasmid(
+  annotation = annotation,
+  name = "pSGNDM-5",
+  layout = "linear",
+  plot_line_num = 4,
+  label_adjust = linear_adjustments
+)
+
+p_linear_adjusted
+```
+
 ## Annotation Table Input
 
 The table needs at least start and end coordinates. A `category` column is
-recommended because it controls gene-arrow classification and palette colours.
-If no category column is supplied, `ggplasmid` will try to infer a category
-from the feature label and type.
+recommended because it controls feature-arrow colors and, when
+`label_text_colour = "category"`, can also control label text colors. Other
+annotation column names are accepted through the package's automatic column
+detection. If no category column is supplied, `ggplasmid` will try to infer a
+category from the feature label and type.
 
 For annotation-table input, pass a FASTA file when you want sequence-derived
 GC content and GC skew. A GenBank input does not need a separate FASTA because
@@ -162,6 +186,8 @@ features <- data.frame(
   line_colour = c("#2166AC", "#8B4513", "#B2182B")
 )
 
+# This packaged FASTA keeps the public example reproducible.
+# Replace it with read_fasta("path/to/your_genome.fasta") for your own table.
 fasta <- read_fasta(
   system.file("extdata", "pSGNDM_5.fasta", package = "ggplasmidZY")
 )
@@ -176,10 +202,13 @@ ggplasmid(
 )
 ```
 
-`category` controls gene-arrow classification and the selected `palette`.
-Using `label_text_colour = "category"` applies that palette to label text;
-`gene_highlight()` changes gene-arrow fill colours only. For custom label text
-and leader-line colors, use columns containing valid R colours:
+`category` controls feature-arrow classification and the selected `palette`.
+Using `label_text_colour = "category"` applies the category colors to label
+text. `gene_highlight()` sets selected gene-arrow fill colors; label colors are
+controlled separately by `label_text_colour` and `label_line_colour`. When
+`label_text_colour = "category"`, label text follows the feature/category
+colors, including highlighted categories. For custom label text and leader-line
+colors, use columns containing valid R colors:
 
 ```r
 ggplasmid(
@@ -217,7 +246,7 @@ Most plot geometry and text settings have defaults but can be tuned directly:
 ggplasmid(
   annotation = annotation,
   name = "pSGNDM-5",
-  palette = "npg", # ggsci palette name; try "aaas", "lancet", "jco", "igv"
+  palette = "npg", # ggsci palette; supported: "npg", "aaas", "lancet", "jco", "ucscgb", "d3", "igv"
   gene_highlight = gene_highlight(
     "Antimicrobial resistance" = "#B2182B",
     "Replication" = "#2166AC"
@@ -242,10 +271,9 @@ ggplasmid(
 ```
 
 `palette` accepts the ggsci palette names `"npg"`, `"aaas"`, `"lancet"`,
-`"jco"`, `"ucscgb"`, `"d3"`, and `"igv"`. Use `ggplasmid_colors()` to
-inspect the category names used by `gene_highlight()`.
-`gene_highlight` changes only gene-arrow categories, and the remaining
-categories keep the selected palette. Circular `*_radius` settings
+`"jco"`, `"ucscgb"`, `"d3"`, and `"igv"`. Use `ggplasmid_colors()` only when
+you want to inspect the built-in category names; `gene_highlight()` can also
+use the category values in your own annotation table. Circular `*_radius` settings
 are distances from the center of the plot to that ring.
 
 You can also add highlights after creating the plot:
