@@ -1,21 +1,28 @@
 # ggplasmidZY
 
-`ggplasmidZY` is an R package for generating publication-quality genetic maps,
-with particular suitability for plasmids and bacteriophages. Built entirely
-within the `ggplot2` framework, it supports both circular and linear plotting of
-annotated genetic features. Its intelligent label-placement algorithm
-automatically minimizes label overlap, making it particularly effective for
-dense multidrug-resistant plasmids containing numerous resistance genes, mobile
-genetic elements, and other features requiring labels. It can also plot circular
-or linear maps for bacteriophage genomes, including a terminal marker option for
-linear phage genomes. The package supports named color palettes from `ggsci`.
+`ggplasmidZY` is an R package for creating publication-quality genetic maps of
+plasmids and bacteriophages. Built within the `ggplot2` framework, it supports
+both circular and linear visualization of annotated genetic features.
 
-The main function is `ggplasmid()`. It returns a normal `ggplot` object, so you
-can add ggplot layers, themes, titles, and scales.
+The package provides automated label placement to minimize label overlap,
+together with flexible user-defined controls for label positions, connector
+lines, text wrapping, and label selection. These features are useful for
+densely annotated plasmids, including plasmids carrying multiple
+antimicrobial-resistance genes, mobile genetic elements, and other genomic
+features of interest.
 
-## Install
+For bacteriophage genomes, `ggplasmidZY` supports both circular and linear maps
+and provides an optional terminal-boundary marker when a linear genome is
+displayed using a circular layout. The package also supports named color
+palettes from `ggsci`.
 
-Install the package directly from GitHub:
+The main plotting function is `ggplasmid()`. It returns a standard `ggplot`
+object, allowing users to add additional layers, themes, titles, and scales
+using conventional `ggplot2` syntax.
+
+## Installation
+
+Install `ggplasmidZY` directly from GitHub:
 
 ```r
 install.packages("remotes")
@@ -24,17 +31,17 @@ remotes::install_github("yzhong005/ggplasmidZY")
 library(ggplasmidZY)
 ```
 
-`ggplot2` and `ggsci` are installed automatically as package
-dependencies when needed.
+The required dependencies, including `ggplot2` and `ggsci`, are installed
+automatically when needed.
 
 ## Quick start
 
-The package includes a public pSGNDM-5 plasmid example. Copy this block into
-RStudio to load the example data:
+The package includes an example dataset derived from the publicly available
+pSGNDM-5 plasmid sequence. The pSGNDM-5 reference plasmid is 84,257 bp in
+length and was described by Zhong et al. in *JAC-Antimicrobial Resistance*
+(2022;4(4):dlac071). [10.1093/jacamr/dlac071](https://doi.org/10.1093/jacamr/dlac071).
 
-This public pSGNDM-5 reference plasmid is 84,257 bp long. The source is Zhong
-Y, Guo S, Schlundt J, Kwa AL. *JAC-Antimicrobial Resistance*. 2022;4(4):dlac071.
-[10.1093/jacamr/dlac071](https://doi.org/10.1093/jacamr/dlac071).
+Run the following code to load the example GenBank annotation:
 
 ```r
 library(ggplasmidZY)
@@ -44,7 +51,11 @@ gbk_file <- system.file("extdata", "pSGNDM_5.gbk", package = "ggplasmidZY")
 annotation <- read_plasmid_annotation(gbk = gbk_file) # annotation + ORIGIN sequence
 ```
 
-To plot your own plasmid or phage, replace the example annotation with:
+The returned object contains both the annotated genomic features and the
+sequence extracted from the GenBank `ORIGIN` field.
+
+To visualize your own plasmid or bacteriophage genome, replace the example file
+with your GenBank file:
 
 ```r
 annotation <- read_gbk("path/to/your_genome.gbk")
@@ -52,7 +63,8 @@ annotation <- read_gbk("path/to/your_genome.gbk")
 
 ### Circular map
 
-Use the packaged system example to plot a circular plasmid map:
+Use the example dataset included with the package to generate a circular
+plasmid map:
 
 ```r
 p_circular <- ggplasmid(
@@ -82,9 +94,9 @@ p_circular
 
 ### Linear map with default connector direction
 
-This is the recommended starting layout. It uses five genome lines and
-horizontal label text. The default vertical connector direction is used for
-this demo.
+This is the recommended starting layout for a linear map. It displays the
+genome across five lines, uses horizontal label text, and applies the default
+vertical connector direction.
 
 ```r
 p_linear <- ggplasmid(
@@ -95,16 +107,16 @@ p_linear <- ggplasmid(
   plot_line_num = 5,                           # number of genome lines
   max_labels = 36,                             # maximum labels to draw
   linear_label_wrap_width = 18,                # approximate label width
-  linear_label_max_lines = 2,                  # never use more than two rows
+  linear_label_max_lines = 2,                  # use no more than two text lines per label
   linear_row_spacing = 4.0,                    # gap between genome lines
-  linear_label_allow_gene_line_crossing = FALSE, # protect line and GC tracks above
+  linear_label_allow_gene_line_crossing = FALSE, # prevent connectors from crossing genome and GC tracks
   linear_label_offset = 0.14,                  # keep two-line labels clear of arrows
   label_text_angle = 0,                        # keep label text horizontal
   gc_skew_height = 0.28,                       # taller GC-skew track
   gc_content_height = 0.14,                    # taller GC-content track
   gc_content_linewidth = 0.8,                  # thicker GC-content line
   label_text_colour = "category",             # label text color by category
-  label_line_colour = "grey70",               # fixed leader-line colour
+  label_line_colour = "grey70",               # fixed leader-line color
   legend_position = "bottom",                 # put legends below the map
   legend_columns = 3,                           # compact feature legend row
   gc_legend_columns = 3                         # compact GC legend row
@@ -116,24 +128,26 @@ p_linear
 ![pSGNDM-5 five-line linear map with GC tracks](man/figures/README-pSGNDM-5-linear-nejm-five.png)
 
 The quick-start examples above use the packaged GenBank sequence directly.
-The data used by an existing plot can be retrieved with `plasmid_data(p)`. Set
+The underlying data associated with an existing plot can be retrieved using
+`plasmid_data(p)`. Set
 `label_unknown = TRUE` to include unknown or hypothetical gene labels.
 
-You can also display only a selected part of a plasmid or phage. Set the
-1-based inclusive `region_start` and `region_end` coordinates; features and
-sequence-derived GC tracks are clipped and rebased to that window. The
+You can also display a selected region of a plasmid or bacteriophage genome.
+Set `region_start` and `region_end` using 1-based inclusive coordinates.
+Features and sequence-derived GC tracks are clipped to the selected region,
+and coordinates are rebased relative to the beginning of that region. The
 [linear-map wiki page](https://github.com/yzhong005/ggplasmidZY/wiki/Linear-map)
 shows this together with the two-sided linear-label option.
 
 ## Label control
 
-For detailed circular and linear label placement, manual adjustments, label
-wrapping, and omitted-label summaries, see the
-[Label control Wiki page](https://github.com/yzhong005/ggplasmidZY/wiki/Label-control).
+For detailed information on circular and linear label placement, manual
+adjustments, label wrapping, and omitted-label summaries, see the
+[label-control wiki page](https://github.com/yzhong005/ggplasmidZY/wiki/Label-control).
 
-For a final small correction, move one selected label and its connector with
-the single-label form of `label_adjust()`. Linear maps can target a `gene_id`;
-circular maps can use the full label text.
+For a final manual correction, use the single-label form of `label_adjust()` to
+reposition an individual label and its connector. Linear maps can target a
+`gene_id`; circular maps can use the full label text.
 
 ```r
 p_linear_adjusted <- ggplasmid(
@@ -151,29 +165,32 @@ p_linear_adjusted <- ggplasmid(
 p_linear_adjusted
 ```
 
-`label_adjust()` also accepts a data frame or named list when several labels
-need adjustments; see the [Label control Wiki page](https://github.com/yzhong005/ggplasmidZY/wiki/Label-control).
+`label_adjust()` also accepts a data frame or named list when multiple labels
+require manual adjustment; see the
+[label-control wiki page](https://github.com/yzhong005/ggplasmidZY/wiki/Label-control).
 
-## Annotation Table Input
+## Annotation table input
 
-The table needs at least start and end coordinates. A `category` column is
-recommended because it controls feature-arrow colors and, when
-`label_text_colour = "category"`, can also control label text colors. Other
-annotation column names are accepted through the package's automatic column
-detection. If no category column is supplied, `ggplasmid` will try to infer a
-category from the feature label and type.
+The annotation table must contain, at minimum, start and end coordinates for
+each feature. A `category` column is recommended because it determines
+feature-arrow colors and can also control label-text colors when
+`label_text_colour = "category"`. Alternative annotation column names are
+supported through automatic column detection. If no category column is
+supplied, `ggplasmid()` attempts to infer feature categories from the feature
+labels and feature types.
 
-For annotation-table input, pass a FASTA file when you want sequence-derived
-GC content and GC skew. A GenBank input does not need a separate FASTA because
-its `ORIGIN` sequence is used directly.
+For annotation-table input, provide a FASTA file when sequence-derived GC
+content and GC skew are required. A separate FASTA file is not required for
+GenBank input because the sequence is extracted directly from the `ORIGIN`
+field.
 
 Common column names are detected automatically:
 
 - Coordinates: `start`/`begin`/`from`/`left` and `end`/`stop`/`to`/`right`
 - Strand: `strand`/`frame`/`direction`
 - Label text: `label`/`product`/`annot`/`annotation`/`function`/`gene`/`name`/`note`
-- Category for colors: `category`/`group`/`pharokka_category`/`function_category`/`class`
-- Label text/line colours: any additional columns containing valid R colours
+- Feature category: `category`/`group`/`pharokka_category`/`function_category`/`class`
+- Label and connector colors: user-specified columns containing valid R color values
 - Feature type: `type`/`feature`/`region`
 
 ```r
@@ -198,18 +215,20 @@ ggplasmid(
   fasta = fasta,
   genome_length = fasta$length[[1]],
   name = "pExample",
-  label_text_colour = "label_colour", # use a table colour column
-  label_line_colour = "line_colour"    # use a table colour column
+  label_text_colour = "label_colour", # use a table color column
+  label_line_colour = "line_colour"    # use a table color column
 )
 ```
 
-`category` controls feature-arrow classification and the selected `palette`.
-Using `label_text_colour = "category"` applies the category colors to label
-text. `gene_highlight()` sets selected gene-arrow fill colors; label colors are
-controlled separately by `label_text_colour` and `label_line_colour`. When
-`label_text_colour = "category"`, label text follows the feature/category
-colors, including highlighted categories. For custom label text and leader-line
-colors, use columns containing valid R colors:
+The `category` column defines feature classes and determines how colors from
+the selected `palette` are assigned. Setting `label_text_colour = "category"`
+applies the corresponding feature-category colors to the label text.
+`gene_highlight()` assigns custom fill colors to selected gene arrows, whereas
+label-text and connector colors are controlled separately using
+`label_text_colour` and `label_line_colour`. When
+`label_text_colour = "category"`, label text uses the final color assigned to
+each feature, including colors applied through `gene_highlight()`. For custom
+label text and leader-line colors, use columns containing valid R colors:
 
 ```r
 ggplasmid(
@@ -223,6 +242,9 @@ ggplasmid(
 
 You can also keep color choices in a separate data frame:
 
+`gene_highlight()` accepts either named color values or a two-column data frame
+containing feature categories and their corresponding colors.
+
 ```r
 my_colors <- data.frame(
   category = c("Antimicrobial resistance", "Replication"),
@@ -233,15 +255,13 @@ ggplasmid(
   features,
   genome_length = 5000,
   name = "pExample",
-  gene_highlight = gene_highlight(my_colors),
-  label_text_colour = "label_colour",
-  label_line_colour = "line_colour"
+  gene_highlight = gene_highlight(my_colors)
 )
 ```
 
 ## Styling
 
-Most plot geometry and text settings have defaults but can be tuned directly:
+Most plot-geometry and text parameters have default values but can be adjusted directly:
 
 ```r
 ggplasmid(
@@ -262,7 +282,7 @@ ggplasmid(
   ruler_linewidth = 0.30,           # bp ruler circle/tick width
   label_text_size = 3.4,            # label font size
   label_anchor_radius = 1.12,       # starting distance for outside labels
-  label_text_colour = "black",      # or an annotation-table colour column
+  label_text_colour = "black",      # or an annotation-table color column
   label_line_colour = "grey70",     # leader line color
   label_line_linetype = "dashed",   # leader line style
   legend_position = "bottom",       # "right", "bottom", "left", "left_top", "top", or "none"
@@ -282,10 +302,10 @@ sort(sub("^pal_", "", getNamespaceExports("ggsci")[
 ]))
 ```
 
-`ggplasmid_colors()` is optional: it only returns the package's built-in
-category names and color mapping for inspection. You do not need it to choose
-a palette or create a plot. Circular `*_radius` settings are distances from
-the center of the plot to that ring.
+Use `ggplasmid_colors()` to inspect the built-in feature-category names and
+color mapping. It is not required to choose a palette or create a plot. In
+circular layouts, arguments ending in `_radius` specify the radial distance
+from the plot center to the corresponding track or element.
 
 You can also add highlights after creating the plot:
 
@@ -314,7 +334,8 @@ ggplasmid(
 )
 ```
 
-`read_plasmid_fasta()` also includes a FASTA-formatted text column:
+The object returned by `read_plasmid_fasta()` includes a `fasta` column
+containing the sequence in FASTA-formatted text:
 
 ```r
 fasta <- read_plasmid_fasta("genome.fasta")
@@ -329,9 +350,10 @@ directly:
 annotation_data <- read_annotation_table("features.tsv")
 ```
 
-## Phage Wrapper
+## Bacteriophage maps
 
-For a phage map, use the phage color/classification scheme:
+Use `plot_phage_map()` to generate a bacteriophage genome map using the
+package's phage-specific feature classifications and color scheme:
 
 ```r
 plot_phage_map(
@@ -341,6 +363,7 @@ plot_phage_map(
 )
 ```
 
-`phage_topology = "linear"` only affects circular layout. It adds a terminal
-boundary line at the genome break point. It does not change the map into a
-linear plot.
+The `phage_topology = "linear"` option affects only the circular layout. It
+adds a terminal-boundary marker at the point where the linear genome is
+represented as a circular display. It does not convert the visualization into
+a linear map.
