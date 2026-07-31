@@ -170,7 +170,11 @@ ggplasmid_resolve_colors <- function(scheme = c("plasmid", "phage"),
   palette <- match.arg(palette, choices = ggplasmid_palette_names())
   base <- ggplasmid_colors(scheme)
 
-  pal_fun <- getExportedValue("ggsci", paste0("pal_", palette))
+  pal_fun <- if (identical(palette, "npg")) {
+    ggsci::pal_npg
+  } else {
+    getExportedValue("ggsci", paste0("pal_", palette))
+  }
   generated <- suppressWarnings(pal_fun()(length(base)))
   available <- generated[!is.na(generated) & nzchar(generated)]
   if (length(available) < length(base)) {

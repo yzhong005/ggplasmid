@@ -5,5 +5,7 @@
 ^\.gitignore$
 ^ggplasmid_package_development[.]Rcheck$
 ^[^/]+[.]Rcheck$
+^\.git$
+^\.\.Rcheck$
 ^[^/]+[.]tar[.]gz$
 ^[^/]+[.]png$
