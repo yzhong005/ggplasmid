@@ -59,7 +59,7 @@ p_circular <- ggplasmid(
   annotation = annotation,                    # gene features and ORIGIN sequence
   name = "pSGNDM-5",                          # plot title/name
   layout = "circular",                        # circular map
-  palette = "lancet",                         # ggsci palette; supported: "npg", "aaas", "lancet", "jco", "ucscgb", "d3", "igv", "observable", "nejm", "jama", "primer", "iterm", "futurama", "locuszoom"
+  palette = "lancet",                         # any named ggsci palette
   gene_highlight = gene_highlight(
     "Unknown function, hypothetical protein" = "grey30"
   ),                                         # highlight unknown-function arrows
@@ -91,7 +91,7 @@ p_linear <- ggplasmid(
   annotation = annotation,                    # gene features and ORIGIN sequence
   name = "pSGNDM-5",                          # plot title/name
   layout = "linear",                          # linear map
-  palette = "nejm",                           # ggsci palette; supported: "npg", "aaas", "lancet", "jco", "ucscgb", "d3", "igv", "observable", "nejm", "jama", "primer", "iterm", "futurama", "locuszoom"
+  palette = "nejm",                           # any named ggsci palette
   plot_line_num = 5,                           # number of genome lines
   max_labels = 36,                             # maximum labels to draw
   linear_label_wrap_width = 18,                # approximate label width
@@ -247,7 +247,7 @@ Most plot geometry and text settings have defaults but can be tuned directly:
 ggplasmid(
   annotation = annotation,
   name = "pSGNDM-5",
-  palette = "npg", # ggsci palette; supported: "npg", "aaas", "lancet", "jco", "ucscgb", "d3", "igv", "observable", "nejm", "jama", "primer", "iterm", "futurama", "locuszoom"
+  palette = "npg", # any named ggsci palette
   gene_highlight = gene_highlight(
     "Antimicrobial resistance" = "#B2182B",
     "Replication" = "#2166AC"
@@ -271,13 +271,21 @@ ggplasmid(
 )
 ```
 
-`palette` chooses the `ggsci` color palette used for the gene categories. For
-example, use `"npg"`, `"aaas"`, `"lancet"`, `"jco"`, or any of the other
-supported names listed in the styling documentation. `ggplasmid_colors()` is
-optional: it only returns the package's built-in category names and color
-mapping for inspection. You do not need it to choose a palette or create a
-plot. Circular `*_radius` settings are distances from the center of the plot
-to that ring.
+`palette` chooses the `ggsci` color palette used for the gene categories. The
+package accepts every exported `ggsci::pal_*` palette, including `"npg"`,
+`"aaas"`, `"lancet"`, `"jco"`, `"locuszoom"`, and `"futurama"`. To list all
+palette names available in your installed `ggsci` version, run:
+
+```r
+sort(sub("^pal_", "", getNamespaceExports("ggsci")[
+  grepl("^pal_", getNamespaceExports("ggsci"))
+]))
+```
+
+`ggplasmid_colors()` is optional: it only returns the package's built-in
+category names and color mapping for inspection. You do not need it to choose
+a palette or create a plot. Circular `*_radius` settings are distances from
+the center of the plot to that ring.
 
 You can also add highlights after creating the plot:
 

@@ -158,34 +158,19 @@ ggplot_add.ggplasmid_gene_highlight <- function(object, plot, object_name) {
   plot
 }
 
+ggplasmid_palette_names <- function() {
+  exports <- getNamespaceExports("ggsci")
+  sort(sub("^pal_", "", exports[grepl("^pal_[[:alnum:]]+$", exports)]))
+}
+
 ggplasmid_resolve_colors <- function(scheme = c("plasmid", "phage"),
-                                     palette = c(
-                                       "npg", "aaas", "lancet", "jco", "ucscgb", "d3", "igv",
-                                       "observable", "nejm", "jama", "primer", "iterm", "futurama",
-                                       "locuszoom"
-                                     ),
+                                     palette = "npg",
                                      gene_highlight = NULL) {
   scheme <- match.arg(scheme)
-  palette <- match.arg(palette)
+  palette <- match.arg(palette, choices = ggplasmid_palette_names())
   base <- ggplasmid_colors(scheme)
 
-  pal_fun <- switch(
-    palette,
-    npg = ggsci::pal_npg,
-    aaas = ggsci::pal_aaas,
-    lancet = ggsci::pal_lancet,
-    jco = ggsci::pal_jco,
-    ucscgb = ggsci::pal_ucscgb,
-    d3 = ggsci::pal_d3,
-    igv = ggsci::pal_igv,
-    observable = ggsci::pal_observable,
-    nejm = ggsci::pal_nejm,
-    jama = ggsci::pal_jama,
-    primer = ggsci::pal_primer,
-    iterm = ggsci::pal_iterm,
-    futurama = ggsci::pal_futurama,
-    locuszoom = ggsci::pal_locuszoom
-  )
+  pal_fun <- getExportedValue("ggsci", paste0("pal_", palette))
   generated <- suppressWarnings(pal_fun()(length(base)))
   available <- generated[!is.na(generated) & nzchar(generated)]
   if (length(available) < length(base)) {
