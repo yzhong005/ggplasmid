@@ -76,7 +76,7 @@ strand_direction <- function(x) {
 }
 
 legend_position_is_vertical <- function(position) {
-  position %in% c("right", "left")
+  position %in% c("right", "left", "left_top")
 }
 
 legend_position_for_theme <- function(position) {
