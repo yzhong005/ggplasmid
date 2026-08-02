@@ -1475,7 +1475,10 @@ auto_legend_plot_spacing <- function(spacing, position, label_bounds,
     left = max(0, -unname(label_bounds[["xmin"]])),
     top = max(0, unname(label_bounds[["ymax"]]) - 1),
     left_top = max(0, unname(label_bounds[["ymax"]]) - 1),
+    right_top = max(0, unname(label_bounds[["ymax"]]) - 1),
     bottom = max(0, -unname(label_bounds[["ymin"]])),
+    left_bottom = max(0, -unname(label_bounds[["ymin"]])),
+    right_bottom = max(0, -unname(label_bounds[["ymin"]])),
     0
   )
   if (!is.finite(overflow) || overflow <= 0) {
@@ -3295,14 +3298,15 @@ plot_linear_plasmid <- function(features, genome_length, name = NULL, rows = 4,
 #'   Increase it to push labels farther from the gene ring.
 #' @param row_label_text_size Text size for linear row labels.
 #' @param legend_position Legend position passed to ggplot2, such as
-#'   `"bottom"`, `"right"`, `"left"`, `"top"`, or `"none"`. Use
-#'   `"left_top"` to anchor the legend at the upper-left above the map.
+#'   `"bottom"`, `"right"`, `"left"`, `"top"`, or `"none"`. Corner positions
+#'   `"left_top"`, `"right_top"`, `"left_bottom"`, and `"right_bottom"`
+#'   anchor the legend outside the corresponding map corner.
 #' @param legend_columns Number of columns in the feature-category legend. When
-#'   omitted, right/left legends use one column and top/bottom legends use
-#'   three columns.
+#'   omitted, side and corner legends use one column, while top and bottom
+#'   legends use three columns.
 #' @param gc_legend_columns Number of columns in the GC content/skew legend.
-#'   When omitted, right/left legends use one column and top/bottom legends use
-#'   three columns.
+#'   When omitted, side and corner legends use one column, while top and bottom
+#'   legends use three columns so the GC entries fit on one row.
 #' @param legend_plot_spacing Space in cm between the plot panel and legend.
 #'   When omitted, right/left legends are moved outward based on the measured
 #'   outer label range.

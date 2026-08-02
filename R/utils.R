@@ -76,15 +76,32 @@ strand_direction <- function(x) {
 }
 
 legend_position_is_vertical <- function(position) {
-  position %in% c("right", "left", "left_top")
+  position %in% c(
+    "right", "left",
+    "left_top", "right_top", "left_bottom", "right_bottom"
+  )
 }
 
 legend_position_for_theme <- function(position) {
-  if (identical(position, "left_top")) "top" else position
+  switch(
+    position,
+    left_top = "top",
+    right_top = "top",
+    left_bottom = "bottom",
+    right_bottom = "bottom",
+    position
+  )
 }
 
 legend_justification_for_theme <- function(position) {
-  if (identical(position, "left_top")) c(0, 1) else "center"
+  switch(
+    position,
+    left_top = c(0, 1),
+    right_top = c(1, 1),
+    left_bottom = c(0, 0),
+    right_bottom = c(1, 0),
+    "center"
+  )
 }
 
 validate_legend_columns <- function(columns = NULL, position = "bottom") {
