@@ -2664,6 +2664,10 @@ plot_circular_plasmid <- function(features, genome_length, name = NULL,
     ggplot2::theme_void(base_family = font_family) +
     ggplot2::theme(
       legend.position = legend_position_for_theme(legend_position),
+      legend.position.inside = legend_position_inside_for_theme(
+        legend_position,
+        label_bounds
+      ),
       legend.justification = legend_justification_for_theme(legend_position),
       legend.box = "vertical",
       legend.box.just = legend_box_justification_for_theme(legend_position),
@@ -3148,6 +3152,7 @@ plot_linear_plasmid <- function(features, genome_length, name = NULL, rows = 4,
     ggplot2::theme_void(base_family = font_family) +
     ggplot2::theme(
       legend.position = legend_position_for_theme(legend_position),
+      legend.position.inside = legend_position_inside_for_theme(legend_position),
       legend.justification = legend_justification_for_theme(legend_position),
       legend.box = "vertical",
       legend.box.spacing = grid::unit(legend_plot_spacing, "cm"),
@@ -3320,9 +3325,11 @@ plot_linear_plasmid <- function(features, genome_length, name = NULL, rows = 4,
 #' @param legend_position Legend position passed to ggplot2, such as
 #'   `"bottom"`, `"right"`, `"left"`, `"top"`, or `"none"`. Corner positions
 #'   `"left_top"`, `"right_top"`, `"left_bottom"`, and `"right_bottom"`
-#'   place the legend in the corresponding upper or lower outer band without
-#'   consuming the map's horizontal plotting width. These corner legends use
-#'   compact key and text spacing to preserve the circular map area.
+#'   use ggplot2's inside-plot positioning. For circular maps, the anchor is
+#'   shifted to the measured outer label envelope so the legend edge follows
+#'   the outermost label text; with no labels it falls back to the panel corner.
+#'   The corner legends use one column by default and do not consume outside
+#'   plot space.
 #' @param legend_columns Number of columns in the feature-category legend. When
 #'   omitted, side and corner legends use one column, while top and bottom
 #'   legends use three columns.

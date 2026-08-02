@@ -85,11 +85,39 @@ legend_position_is_vertical <- function(position) {
 legend_position_for_theme <- function(position) {
   switch(
     position,
-    left_top = "top",
-    right_top = "top",
-    left_bottom = "bottom",
-    right_bottom = "bottom",
+    left_top = "inside",
+    right_top = "inside",
+    left_bottom = "inside",
+    right_bottom = "inside",
     position
+  )
+}
+
+legend_position_inside_for_theme <- function(position, label_bounds = NULL) {
+  inside_position <- switch(
+    position,
+    left_top = c(0, 1),
+    right_top = c(1, 1),
+    left_bottom = c(0, 0),
+    right_bottom = c(1, 0),
+    NULL
+  )
+  if (is.null(inside_position) || is.null(label_bounds) || !length(label_bounds)) {
+    return(inside_position)
+  }
+
+  bounds <- label_bounds[c("xmin", "xmax", "ymin", "ymax")]
+  if (any(!is.finite(bounds))) {
+    return(inside_position)
+  }
+
+  switch(
+    position,
+    left_top = c(bounds[["xmin"]], bounds[["ymax"]]),
+    right_top = c(bounds[["xmax"]], bounds[["ymax"]]),
+    left_bottom = c(bounds[["xmin"]], bounds[["ymin"]]),
+    right_bottom = c(bounds[["xmax"]], bounds[["ymin"]]),
+    inside_position
   )
 }
 

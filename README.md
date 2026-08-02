@@ -335,10 +335,11 @@ ggplasmid(
 ```
 
 Corner legend positions (`"left_top"`, `"right_top"`, `"left_bottom"`, and
-`"right_bottom"`) place both one-column legends in the matching upper or lower
-outer band without consuming the map's horizontal plotting width and use
-compact key/text spacing to preserve the circular map area. Top and bottom
-legends default to three feature columns and one GC legend row; set
+`"right_bottom"`) use inside-plot positioning. For circular maps, each corner
+anchor follows the corresponding edge of the measured outer label envelope, so
+`"left_top"` aligns with the leftmost and highest label text. With no labels,
+the anchor falls back to the panel corner. Top and bottom legends default to
+three feature columns and one GC legend row; set
 `legend_columns` or `gc_legend_columns` explicitly when you want a different
 layout.
 
