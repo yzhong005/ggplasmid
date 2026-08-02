@@ -85,10 +85,10 @@ legend_position_is_vertical <- function(position) {
 legend_position_for_theme <- function(position) {
   switch(
     position,
-    left_top = "left",
-    right_top = "right",
-    left_bottom = "left",
-    right_bottom = "right",
+    left_top = "top",
+    right_top = "top",
+    left_bottom = "bottom",
+    right_bottom = "bottom",
     position
   )
 }
@@ -128,40 +128,13 @@ validate_gc_legend_columns <- function(columns = NULL, position = "bottom") {
 
 validate_legend_plot_spacing <- function(spacing = NULL, position = "bottom") {
   if (is.null(spacing)) {
-    return(if (legend_position_is_vertical(position)) 3.0 else 0.35)
+    return(if (position %in% c("right", "left")) 3.0 else 0.35)
   }
   spacing <- as.numeric(spacing)
   if (length(spacing) != 1L || !is.finite(spacing) || spacing < 0) {
     stop("`legend_plot_spacing` must be a non-negative number.", call. = FALSE)
   }
   spacing
-}
-
-corner_legend_box_margin <- function(position, label_bounds, overflow_scale = 420) {
-  margin_values <- c(t = 0, r = 0, b = 0, l = 0)
-  if (is.null(label_bounds) || !length(label_bounds)) {
-    return(ggplot2::margin())
-  }
-
-  if (position %in% c("left_top", "right_top") &&
-      is.finite(label_bounds[["ymax"]])) {
-    # Move the top anchor until it matches the highest label edge.
-    margin_values[["t"]] <-
-      (1 - unname(label_bounds[["ymax"]])) * overflow_scale
-  }
-  if (position %in% c("left_bottom", "right_bottom") &&
-      is.finite(label_bounds[["ymin"]])) {
-    # Move the bottom anchor until it matches the lowest label edge.
-    margin_values[["b"]] <-
-      unname(label_bounds[["ymin"]]) * overflow_scale
-  }
-
-  ggplot2::margin(
-    t = unname(margin_values[["t"]]),
-    r = unname(margin_values[["r"]]),
-    b = unname(margin_values[["b"]]),
-    l = unname(margin_values[["l"]])
-  )
 }
 
 gene_legend_breaks <- function(colors) {

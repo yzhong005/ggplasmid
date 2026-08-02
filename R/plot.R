@@ -1472,13 +1472,13 @@ auto_legend_plot_spacing <- function(spacing, position, label_bounds,
   overflow <- switch(
     position,
     right = max(0, unname(label_bounds[["xmax"]]) - 1),
-    right_top = max(0, unname(label_bounds[["xmax"]]) - 1),
-    right_bottom = max(0, unname(label_bounds[["xmax"]]) - 1),
     left = max(0, -unname(label_bounds[["xmin"]])),
-    left_top = max(0, -unname(label_bounds[["xmin"]])),
-    left_bottom = max(0, -unname(label_bounds[["xmin"]])),
     top = max(0, unname(label_bounds[["ymax"]]) - 1),
+    left_top = max(0, unname(label_bounds[["ymax"]]) - 1),
+    right_top = max(0, unname(label_bounds[["ymax"]]) - 1),
     bottom = max(0, -unname(label_bounds[["ymin"]])),
+    left_bottom = max(0, -unname(label_bounds[["ymin"]])),
+    right_bottom = max(0, -unname(label_bounds[["ymin"]])),
     0
   )
   if (!is.finite(overflow) || overflow <= 0) {
@@ -2393,6 +2393,18 @@ plot_circular_plasmid <- function(features, genome_length, name = NULL,
   gc_legend_columns <- validate_gc_legend_columns(gc_legend_columns, legend_position)
   legend_plot_spacing_auto <- is.null(legend_plot_spacing)
   legend_plot_spacing <- validate_legend_plot_spacing(legend_plot_spacing, legend_position)
+  corner_legend <- legend_position %in% c(
+    "left_top", "right_top", "left_bottom", "right_bottom"
+  )
+  effective_legend_text_size <- if (corner_legend) {
+    min(legend_text_size, 7)
+  } else {
+    legend_text_size
+  }
+  effective_legend_key_height <- if (corner_legend) 0.22 else 0.34
+  effective_legend_key_width <- if (corner_legend) 0.36 else 0.45
+  effective_gc_key_width <- if (corner_legend) 0.55 else 0.70
+  effective_legend_spacing_y <- if (corner_legend) 0.16 else 0.35
   plot_colors <- ggplasmid_resolve_colors(
     category_scheme,
     palette = palette,
@@ -2636,15 +2648,15 @@ plot_circular_plasmid <- function(features, genome_length, name = NULL,
         order = 2,
         ncol = legend_columns,
         byrow = TRUE,
-        keyheight = grid::unit(0.34, "cm"),
-        keywidth = grid::unit(0.45, "cm")
+        keyheight = grid::unit(effective_legend_key_height, "cm"),
+        keywidth = grid::unit(effective_legend_key_width, "cm")
       ),
       colour = ggplot2::guide_legend(
         order = 1,
         ncol = gc_legend_columns,
         byrow = TRUE,
-        keyheight = grid::unit(0.34, "cm"),
-        keywidth = grid::unit(0.70, "cm"),
+        keyheight = grid::unit(effective_legend_key_height, "cm"),
+        keywidth = grid::unit(effective_gc_key_width, "cm"),
         override.aes = list(alpha = 1, linewidth = gc_legend_linewidth)
       )
     ) +
@@ -2654,14 +2666,18 @@ plot_circular_plasmid <- function(features, genome_length, name = NULL,
       legend.position = legend_position_for_theme(legend_position),
       legend.justification = legend_justification_for_theme(legend_position),
       legend.box = "vertical",
-      legend.box.margin = corner_legend_box_margin(legend_position, label_bounds),
-      legend.box.spacing = grid::unit(legend_plot_spacing, "cm"),
-      legend.spacing.y = grid::unit(0.35, "cm"),
-      legend.text = ggplot2::element_text(face = "bold", size = legend_text_size, colour = "black"),
+      legend.box.spacing = grid::unit(
+        if (corner_legend) min(legend_plot_spacing, 0.16) else legend_plot_spacing,
+        "cm"
+      ),
+      legend.spacing.y = grid::unit(effective_legend_spacing_y, "cm"),
+      legend.text = ggplot2::element_text(
+        face = "bold", size = effective_legend_text_size, colour = "black"
+      ),
       legend.background = ggplot2::element_rect(fill = "white", colour = NA),
       legend.key = ggplot2::element_rect(fill = "white", colour = NA),
-      legend.key.height = grid::unit(0.30, "cm"),
-      legend.key.width = grid::unit(0.45, "cm"),
+      legend.key.height = grid::unit(effective_legend_key_height, "cm"),
+      legend.key.width = grid::unit(effective_legend_key_width, "cm"),
       plot.background = ggplot2::element_rect(fill = "white", colour = NA),
       panel.background = ggplot2::element_rect(fill = "white", colour = NA),
       plot.margin = circular_plot_margin(label_bounds)
@@ -3303,8 +3319,9 @@ plot_linear_plasmid <- function(features, genome_length, name = NULL, rows = 4,
 #' @param legend_position Legend position passed to ggplot2, such as
 #'   `"bottom"`, `"right"`, `"left"`, `"top"`, or `"none"`. Corner positions
 #'   `"left_top"`, `"right_top"`, `"left_bottom"`, and `"right_bottom"`
-#'   place the legend outside the corresponding upper or lower map corner and
-#'   align it with the measured outer label envelope.
+#'   place the legend in the corresponding upper or lower outer band without
+#'   consuming the map's horizontal plotting width. These corner legends use
+#'   compact key and text spacing to preserve the circular map area.
 #' @param legend_columns Number of columns in the feature-category legend. When
 #'   omitted, side and corner legends use one column, while top and bottom
 #'   legends use three columns.
