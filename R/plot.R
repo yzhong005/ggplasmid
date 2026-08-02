@@ -2376,6 +2376,7 @@ plot_circular_plasmid <- function(features, genome_length, name = NULL,
                                   label_text_colour = "black",
                                   ruler_text_size = 2.25,
                                   center_text_size = 4.3,
+                                  center_text_colour = "black",
                                   legend_position = "bottom",
                                   legend_text_size = 8.5,
                                   legend_columns = NULL,
@@ -2615,7 +2616,7 @@ plot_circular_plasmid <- function(features, genome_length, name = NULL,
     geom_plasmid_text_overlay(
       center_text_overlay(name, genome_length),
       family = font_family,
-      text_colour = "black",
+      text_colour = center_text_colour,
       text_size = center_text_size,
       fontface = "bold",
       lineheight = 0.9
@@ -3290,6 +3291,7 @@ plot_linear_plasmid <- function(features, genome_length, name = NULL, rows = 4,
 #' @param sequence_linewidth Linear layout baseline width.
 #' @param label_text_size,ruler_text_size,center_text_size,legend_text_size Text
 #'   sizes.
+#' @param center_text_colour Colour for the circular map sample/genome label.
 #' @param label_text_colour Label text colour. Use `"category"` to use the
 #'   selected palette, a fixed R colour such as `"black"`, a vector with one
 #'   colour per label, or the name of an annotation column containing valid R
@@ -3406,6 +3408,7 @@ ggplasmid <- function(annotation = NULL, gbk = NULL, fasta = NULL, skew_table = 
                       row_label_text_size = 3.4,
                       ruler_text_size = 2.25,
                       center_text_size = 4.3,
+                      center_text_colour = "black",
                       legend_position = NULL,
                       legend_text_size = 8.5,
                       legend_columns = NULL,
@@ -3610,6 +3613,7 @@ ggplasmid <- function(annotation = NULL, gbk = NULL, fasta = NULL, skew_table = 
       label_text_colour = label_text_colour,
       ruler_text_size = ruler_text_size,
       center_text_size = center_text_size,
+      center_text_colour = center_text_colour,
       legend_position = legend_position,
       legend_text_size = legend_text_size,
       legend_columns = legend_columns,
@@ -3931,6 +3935,7 @@ plot_phage_map <- function(annotation = NULL, gbk = NULL, fasta = NULL,
                            row_label_text_size = 3.4,
                            ruler_text_size = 2.25,
                            center_text_size = 4.3,
+                           center_text_colour = "black",
                            legend_position = NULL,
                            legend_text_size = 8.5,
                            legend_columns = NULL,
@@ -4017,6 +4022,7 @@ plot_phage_map <- function(annotation = NULL, gbk = NULL, fasta = NULL,
     row_label_text_size = row_label_text_size,
     ruler_text_size = ruler_text_size,
     center_text_size = center_text_size,
+    center_text_colour = center_text_colour,
     legend_position = legend_position,
     legend_text_size = legend_text_size,
     legend_columns = legend_columns,

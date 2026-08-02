@@ -82,6 +82,7 @@ plot_plasmid_map(
   row_label_text_size = 3.4,
   ruler_text_size = 2.25,
   center_text_size = 4.3,
+  center_text_colour = "black",
   legend_position = NULL,
   legend_text_size = 8.5,
   legend_columns = NULL,
@@ -291,6 +292,8 @@ sizes.}
 selected palette, a fixed R colour such as \code{"black"}, a vector with one
 colour per label, or the name of an annotation column containing valid R
 colours.}
+
+\item{center_text_colour}{Colour for the circular map sample/genome label.}
 
 \item{row_label_text_size}{Text size for linear row labels.}
 
