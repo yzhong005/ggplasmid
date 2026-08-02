@@ -76,15 +76,15 @@ strand_direction <- function(x) {
 }
 
 legend_position_is_vertical <- function(position) {
-  position %in% c("right", "left", "left_top")
+  position %in% c("right", "left")
 }
 
 legend_position_for_theme <- function(position) {
-  if (identical(position, "left_top")) c(0, 1) else position
+  if (identical(position, "left_top")) "top" else position
 }
 
 legend_justification_for_theme <- function(position) {
-  if (identical(position, "left_top")) c(0, 1) else "center"
+  if (identical(position, "left_top")) c(0, 0.5) else "center"
 }
 
 validate_legend_columns <- function(columns = NULL, position = "bottom") {

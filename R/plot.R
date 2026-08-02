@@ -1474,6 +1474,7 @@ auto_legend_plot_spacing <- function(spacing, position, label_bounds,
     right = max(0, unname(label_bounds[["xmax"]]) - 1),
     left = max(0, -unname(label_bounds[["xmin"]])),
     top = max(0, unname(label_bounds[["ymax"]]) - 1),
+    left_top = max(0, unname(label_bounds[["ymax"]]) - 1),
     bottom = max(0, -unname(label_bounds[["ymin"]])),
     0
   )
@@ -3295,7 +3296,7 @@ plot_linear_plasmid <- function(features, genome_length, name = NULL, rows = 4,
 #' @param row_label_text_size Text size for linear row labels.
 #' @param legend_position Legend position passed to ggplot2, such as
 #'   `"bottom"`, `"right"`, `"left"`, `"top"`, or `"none"`. Use
-#'   `"left_top"` to place the legend inside the upper-left plot corner.
+#'   `"left_top"` to anchor the legend at the upper-left above the map.
 #' @param legend_columns Number of columns in the feature-category legend. When
 #'   omitted, right/left legends use one column and top/bottom legends use
 #'   three columns.

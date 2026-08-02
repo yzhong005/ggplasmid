@@ -296,8 +296,8 @@ colours.}
 
 \item{legend_position}{Legend position passed to ggplot2, such as
 \code{"bottom"}, \code{"right"}, \code{"left"}, \code{"top"}, or
-\code{"none"}. Use \code{"left_top"} to place the legend inside the
-upper-left plot corner.}
+\code{"none"}. Use \code{"left_top"} to anchor the legend at the upper-left
+above the map without covering it.}
 
 \item{legend_columns}{Number of columns in the feature-category legend. When
 omitted, right/left legends use one column and top/bottom legends use
