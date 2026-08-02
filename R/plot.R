@@ -1472,13 +1472,13 @@ auto_legend_plot_spacing <- function(spacing, position, label_bounds,
   overflow <- switch(
     position,
     right = max(0, unname(label_bounds[["xmax"]]) - 1),
+    right_top = max(0, unname(label_bounds[["xmax"]]) - 1),
+    right_bottom = max(0, unname(label_bounds[["xmax"]]) - 1),
     left = max(0, -unname(label_bounds[["xmin"]])),
+    left_top = max(0, -unname(label_bounds[["xmin"]])),
+    left_bottom = max(0, -unname(label_bounds[["xmin"]])),
     top = max(0, unname(label_bounds[["ymax"]]) - 1),
-    left_top = max(0, unname(label_bounds[["ymax"]]) - 1),
-    right_top = max(0, unname(label_bounds[["ymax"]]) - 1),
     bottom = max(0, -unname(label_bounds[["ymin"]])),
-    left_bottom = max(0, -unname(label_bounds[["ymin"]])),
-    right_bottom = max(0, -unname(label_bounds[["ymin"]])),
     0
   )
   if (!is.finite(overflow) || overflow <= 0) {
@@ -2654,6 +2654,7 @@ plot_circular_plasmid <- function(features, genome_length, name = NULL,
       legend.position = legend_position_for_theme(legend_position),
       legend.justification = legend_justification_for_theme(legend_position),
       legend.box = "vertical",
+      legend.box.margin = corner_legend_box_margin(legend_position, label_bounds),
       legend.box.spacing = grid::unit(legend_plot_spacing, "cm"),
       legend.spacing.y = grid::unit(0.35, "cm"),
       legend.text = ggplot2::element_text(face = "bold", size = legend_text_size, colour = "black"),
@@ -3302,7 +3303,8 @@ plot_linear_plasmid <- function(features, genome_length, name = NULL, rows = 4,
 #' @param legend_position Legend position passed to ggplot2, such as
 #'   `"bottom"`, `"right"`, `"left"`, `"top"`, or `"none"`. Corner positions
 #'   `"left_top"`, `"right_top"`, `"left_bottom"`, and `"right_bottom"`
-#'   anchor the legend outside the corresponding map corner.
+#'   place the legend outside the corresponding upper or lower map corner and
+#'   align it with the measured outer label envelope.
 #' @param legend_columns Number of columns in the feature-category legend. When
 #'   omitted, side and corner legends use one column, while top and bottom
 #'   legends use three columns.
@@ -3310,8 +3312,8 @@ plot_linear_plasmid <- function(features, genome_length, name = NULL, rows = 4,
 #'   When omitted, side and corner legends use one column, while top and bottom
 #'   legends use three columns so the GC entries fit on one row.
 #' @param legend_plot_spacing Space in cm between the plot panel and legend.
-#'   When omitted, right/left legends are moved outward based on the measured
-#'   outer label range.
+#'   When omitted, side and corner legends are moved outward based on the
+#'   measured outer label range.
 #' @param inner_radius Inner radius passed to `coord_radial()` for circular
 #'   maps. Larger values make a larger center hole and push tracks outward.
 #'   Use `NULL` to choose a layout-aware default.

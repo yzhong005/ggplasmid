@@ -335,10 +335,10 @@ ggplasmid(
 ```
 
 Corner legend positions (`"left_top"`, `"right_top"`, `"left_bottom"`, and
-`"right_bottom"`) keep both legends in one column and reserve space outside
-the map. Top and bottom legends default to three feature columns and one GC
-legend row; set `legend_columns` or `gc_legend_columns` explicitly when you
-want a different layout.
+`"right_bottom"`) place both one-column legends outside the matching map corner
+and align them with the outer label envelope. Top and bottom legends default to
+three feature columns and one GC legend row; set `legend_columns` or
+`gc_legend_columns` explicitly when you want a different layout.
 
 The object returned by `read_plasmid_fasta()` includes a `fasta` column
 containing the sequence in FASTA-formatted text:
