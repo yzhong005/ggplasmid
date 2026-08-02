@@ -104,6 +104,17 @@ legend_justification_for_theme <- function(position) {
   )
 }
 
+legend_box_justification_for_theme <- function(position) {
+  switch(
+    position,
+    left_top = "left",
+    left_bottom = "left",
+    right_top = "right",
+    right_bottom = "right",
+    "center"
+  )
+}
+
 validate_legend_columns <- function(columns = NULL, position = "bottom") {
   if (is.null(columns)) {
     return(if (legend_position_is_vertical(position)) 1L else 3L)

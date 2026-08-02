@@ -2666,6 +2666,7 @@ plot_circular_plasmid <- function(features, genome_length, name = NULL,
       legend.position = legend_position_for_theme(legend_position),
       legend.justification = legend_justification_for_theme(legend_position),
       legend.box = "vertical",
+      legend.box.just = legend_box_justification_for_theme(legend_position),
       legend.box.spacing = grid::unit(
         if (corner_legend) min(legend_plot_spacing, 0.16) else legend_plot_spacing,
         "cm"
