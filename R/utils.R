@@ -84,7 +84,7 @@ legend_position_for_theme <- function(position) {
 }
 
 legend_justification_for_theme <- function(position) {
-  if (identical(position, "left_top")) c(0, 0.5) else "center"
+  if (identical(position, "left_top")) c(0, 1) else "center"
 }
 
 validate_legend_columns <- function(columns = NULL, position = "bottom") {
