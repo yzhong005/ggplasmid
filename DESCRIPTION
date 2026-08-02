@@ -1,6 +1,6 @@
 Package: ggplasmidZY
-Title: Plasmid-First Linear and Circular Maps with ggplot2
-Version: 0.1.0
+Title: Plasmid-First Linear and Circular Maps with 'ggplot2'
+Version: 0.1.1
 Authors@R: c(
     person("Zhong", "Yang", role = c("aut", "cre"), email = "yzhong005@e.ntu.edu.sg")
   )
@@ -8,14 +8,17 @@ Author: Zhong Yang [aut, cre]
 Maintainer: Zhong Yang <yzhong005@e.ntu.edu.sg>
 Description: Generate publication-quality genetic maps, with particular
     suitability for plasmids and bacteriophages. Built entirely within the
-    ggplot2 framework, ggplasmidZY supports both circular and linear plotting of
+    'ggplot2' framework, ggplasmidZY supports both circular and linear plotting of
     annotated genetic features. Its intelligent label-placement algorithm
     automatically minimizes label overlap, making it effective for densely
     annotated multidrug-resistant plasmids containing numerous resistance genes,
     mobile genetic elements, and other labeled features. It can also plot
     circular or linear bacteriophage genome maps, including a terminal marker
     option for linear phage genomes. The package provides a curated catalogue of
-    named color palettes from ggsci.
+    named color palettes from 'ggsci'. The circular map design is related to
+    established genome visualization methods (Stothard and Wishart, 2005)
+    <doi:10.1093/bioinformatics/bti054>. The public pSGNDM-5 example is
+    described by Zhong et al. (2022) <doi:10.1093/jacamr/dlac071>.
 License: MIT + file LICENSE
 URL: https://github.com/yzhong005/ggplasmidZY
 BugReports: https://github.com/yzhong005/ggplasmidZY/issues
