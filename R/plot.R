@@ -2413,7 +2413,7 @@ plot_circular_plasmid <- function(features, genome_length, name = NULL,
     "left_top", "right_top", "left_bottom", "right_bottom"
   )
   effective_legend_text_size <- if (corner_legend) {
-    min(legend_text_size, 7)
+    min(legend_text_size, 10)
   } else {
     legend_text_size
   }
