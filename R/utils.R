@@ -141,6 +141,8 @@ legend_justification_for_theme <- function(position) {
 legend_box_justification_for_theme <- function(position) {
   switch(
     position,
+    right = "left",
+    left = "left",
     left_top = "left",
     left_bottom = "left",
     right_top = "right",

@@ -94,6 +94,7 @@ plot_phage_map(
   center_text_font_family = NULL,
   legend_font_family = NULL,
   ruler_fontface = "plain",
+  ruler_radius = NULL,
   gc_window = 100L,
   gc_step = NULL,
   width = NULL,
@@ -341,6 +342,9 @@ text. Defaults to \code{font_family}.}
 
 \item{ruler_fontface}{Font face for circular ruler labels: \code{"plain"},
 \code{"bold"}, \code{"italic"}, or \code{"bold.italic"}.}
+
+\item{ruler_radius}{Radius of the circular ruler ring. The default \code{NULL}
+places it just inside the GC-content track.}
 
 \item{gc_window}{GC-skew window.}
 

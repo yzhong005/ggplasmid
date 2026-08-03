@@ -3386,6 +3386,8 @@ plot_linear_plasmid <- function(features, genome_length, name = NULL, rows = 4,
 #'   `font_family`.
 #' @param ruler_fontface Font face for circular ruler labels: `"plain"`,
 #'   `"bold"`, `"italic"`, or `"bold.italic"`.
+#' @param ruler_radius Radius of the circular ruler ring. The default `NULL`
+#'   places it just inside the GC-content track.
 #' @param gc_window GC-skew window.
 #' @param gc_step GC-skew step. Use `NULL` to choose an automatic step that is
 #'   faster for long genomes.
@@ -3490,6 +3492,7 @@ ggplasmid <- function(annotation = NULL, gbk = NULL, fasta = NULL, skew_table = 
                       center_text_font_family = NULL,
                       legend_font_family = NULL,
                       ruler_fontface = "plain",
+                      ruler_radius = NULL,
                       gc_window = 100L, gc_step = NULL,
                       width = NULL, height = NULL, dpi = 300) {
   layout <- match.arg(layout)
@@ -3676,7 +3679,7 @@ ggplasmid <- function(annotation = NULL, gbk = NULL, fasta = NULL, skew_table = 
       gc_content_height = gc_content_height,
       gc_content_linewidth = gc_content_linewidth,
       gc_legend_linewidth = gc_legend_linewidth,
-      ruler_radius = gc_content_radius - 0.08,
+      ruler_radius = ruler_radius %||% (gc_content_radius - 0.08),
       ruler_minor_tick = ruler_minor_tick,
       ruler_major_tick = ruler_major_tick,
       ruler_label_radius = ruler_label_radius,
@@ -4032,6 +4035,7 @@ plot_phage_map <- function(annotation = NULL, gbk = NULL, fasta = NULL,
                            center_text_font_family = NULL,
                            legend_font_family = NULL,
                            ruler_fontface = "plain",
+                           ruler_radius = NULL,
                            gc_window = 100L, gc_step = NULL,
                            width = NULL, height = NULL, dpi = 300) {
   ggplasmid(
@@ -4124,6 +4128,7 @@ plot_phage_map <- function(annotation = NULL, gbk = NULL, fasta = NULL,
     center_text_font_family = center_text_font_family,
     legend_font_family = legend_font_family,
     ruler_fontface = ruler_fontface,
+    ruler_radius = ruler_radius,
     gc_window = gc_window,
     gc_step = gc_step,
     width = width,
