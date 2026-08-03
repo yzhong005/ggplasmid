@@ -90,6 +90,10 @@ plot_plasmid_map(
   legend_plot_spacing = NULL,
   inner_radius = NULL,
   font_family = "sans",
+  label_font_family = NULL,
+  center_text_font_family = NULL,
+  legend_font_family = NULL,
+  ruler_fontface = "plain",
   gc_window = 100L,
   gc_step = NULL,
   width = NULL,
@@ -323,6 +327,18 @@ Use \code{NULL} to choose a layout-aware default.}
 
 \item{font_family}{Font family passed to ggplot2 text themes. The default
 \code{"sans"} avoids Windows font database warnings.}
+
+\item{label_font_family}{Optional font family for feature labels. Defaults to
+\code{font_family}.}
+
+\item{center_text_font_family}{Optional font family for the circular center
+text. Defaults to \code{font_family}.}
+
+\item{legend_font_family}{Optional font family for legend text. Defaults to
+\code{font_family}.}
+
+\item{ruler_fontface}{Font face for circular ruler labels: \code{"plain"},
+\code{"bold"}, \code{"italic"}, or \code{"bold.italic"}.}
 
 \item{gc_window}{GC-skew window.}
 

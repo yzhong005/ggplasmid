@@ -2383,8 +2383,19 @@ plot_circular_plasmid <- function(features, genome_length, name = NULL,
                                   gc_legend_columns = NULL,
                                   legend_plot_spacing = NULL,
                                   font_family = "sans",
+                                  label_font_family = NULL,
+                                  center_text_font_family = NULL,
+                                  legend_font_family = NULL,
+                                  ruler_fontface = "plain",
                                   inner_radius = 0.38) {
   phage_topology <- match.arg(phage_topology)
+  label_font_family <- label_font_family %||% font_family
+  center_text_font_family <- center_text_font_family %||% font_family
+  legend_font_family <- legend_font_family %||% font_family
+  ruler_fontface <- match.arg(
+    ruler_fontface,
+    c("plain", "bold", "italic", "bold.italic")
+  )
   if (!is.null(mini_label_line_length)) {
     label_line_length <- mini_label_line_length
   }
@@ -2590,7 +2601,7 @@ plot_circular_plasmid <- function(features, genome_length, name = NULL,
     }
     p <- p + geom_plasmid_text_overlay(
       label_overlay,
-      family = font_family,
+      family = label_font_family,
       text_colour = "black",
       text_size = effective_label_text_size,
       fontface = "bold",
@@ -2610,7 +2621,8 @@ plot_circular_plasmid <- function(features, genome_length, name = NULL,
       ),
       family = font_family,
       text_colour = "grey25",
-      text_size = ruler_text_size
+      text_size = ruler_text_size,
+      fontface = ruler_fontface
     )
   }
 
@@ -2627,7 +2639,7 @@ plot_circular_plasmid <- function(features, genome_length, name = NULL,
   p <- p +
     geom_plasmid_text_overlay(
       center_text_overlay(name, genome_length),
-      family = font_family,
+      family = center_text_font_family,
       text_colour = center_text_colour,
       text_size = center_text_size,
       fontface = "bold",
@@ -2677,6 +2689,7 @@ plot_circular_plasmid <- function(features, genome_length, name = NULL,
       ),
       legend.spacing.y = grid::unit(effective_legend_spacing_y, "cm"),
       legend.text = ggplot2::element_text(
+        family = legend_font_family,
         face = "bold", size = effective_legend_text_size, colour = "black"
       ),
       legend.background = ggplot2::element_rect(fill = "white", colour = NA),
@@ -2742,7 +2755,13 @@ plot_linear_plasmid <- function(features, genome_length, name = NULL, rows = 4,
                                 legend_columns = NULL,
                                 gc_legend_columns = NULL,
                                 legend_plot_spacing = NULL,
-                                font_family = "sans") {
+                                font_family = "sans",
+                                label_font_family = NULL,
+                                center_text_font_family = NULL,
+                                legend_font_family = NULL,
+                                ruler_fontface = "plain") {
+  label_font_family <- label_font_family %||% font_family
+  legend_font_family <- legend_font_family %||% font_family
   gene_linewidth <- gene_border_linewidth %||% gene_linewidth
   legend_columns <- validate_legend_columns(legend_columns, legend_position)
   gc_legend_columns <- validate_gc_legend_columns(gc_legend_columns, legend_position)
@@ -3065,7 +3084,7 @@ plot_linear_plasmid <- function(features, genome_length, name = NULL, rows = 4,
             colour = I(label_colour),
             size = label_text_size,
             fontface = "bold",
-            family = font_family,
+            family = label_font_family,
             lineheight = 0.90
           )
       }
@@ -3157,7 +3176,10 @@ plot_linear_plasmid <- function(features, genome_length, name = NULL, rows = 4,
       legend.box = "vertical",
       legend.box.spacing = grid::unit(legend_plot_spacing, "cm"),
       legend.spacing.y = grid::unit(0.35, "cm"),
-      legend.text = ggplot2::element_text(face = "bold", size = legend_text_size, colour = "black"),
+      legend.text = ggplot2::element_text(
+        family = legend_font_family,
+        face = "bold", size = legend_text_size, colour = "black"
+      ),
       legend.background = ggplot2::element_rect(fill = "white", colour = NA),
       legend.key = ggplot2::element_rect(fill = "white", colour = NA),
       legend.key.height = grid::unit(0.30, "cm"),
@@ -3344,6 +3366,14 @@ plot_linear_plasmid <- function(features, genome_length, name = NULL, rows = 4,
 #'   Use `NULL` to choose a layout-aware default.
 #' @param font_family Font family passed to ggplot2 text themes. The default
 #'   `"sans"` avoids Windows font database warnings.
+#' @param label_font_family Optional font family for feature labels. Defaults
+#'   to `font_family`.
+#' @param center_text_font_family Optional font family for the circular center
+#'   text. Defaults to `font_family`.
+#' @param legend_font_family Optional font family for legend text. Defaults to
+#'   `font_family`.
+#' @param ruler_fontface Font face for circular ruler labels: `"plain"`,
+#'   `"bold"`, `"italic"`, or `"bold.italic"`.
 #' @param gc_window GC-skew window.
 #' @param gc_step GC-skew step. Use `NULL` to choose an automatic step that is
 #'   faster for long genomes.
@@ -3443,6 +3473,10 @@ ggplasmid <- function(annotation = NULL, gbk = NULL, fasta = NULL, skew_table = 
                       legend_plot_spacing = NULL,
                       inner_radius = NULL,
                       font_family = "sans",
+                      label_font_family = NULL,
+                      center_text_font_family = NULL,
+                      legend_font_family = NULL,
+                      ruler_fontface = "plain",
                       gc_window = 100L, gc_step = NULL,
                       width = NULL, height = NULL, dpi = 300) {
   layout <- match.arg(layout)
@@ -3647,7 +3681,11 @@ ggplasmid <- function(annotation = NULL, gbk = NULL, fasta = NULL, skew_table = 
       gc_legend_columns = gc_legend_columns,
       legend_plot_spacing = legend_plot_spacing,
       inner_radius = inner_radius,
-      font_family = font_family
+      font_family = font_family,
+      label_font_family = label_font_family,
+      center_text_font_family = center_text_font_family,
+      legend_font_family = legend_font_family,
+      ruler_fontface = ruler_fontface
     )
   } else {
     plot_linear_plasmid(
@@ -3698,7 +3736,11 @@ ggplasmid <- function(annotation = NULL, gbk = NULL, fasta = NULL, skew_table = 
       legend_columns = legend_columns,
       gc_legend_columns = gc_legend_columns,
       legend_plot_spacing = legend_plot_spacing,
-      font_family = font_family
+      font_family = font_family,
+      label_font_family = label_font_family,
+      center_text_font_family = center_text_font_family,
+      legend_font_family = legend_font_family,
+      ruler_fontface = ruler_fontface
     )
   }
 
@@ -3970,6 +4012,10 @@ plot_phage_map <- function(annotation = NULL, gbk = NULL, fasta = NULL,
                            legend_plot_spacing = NULL,
                            inner_radius = NULL,
                            font_family = "sans",
+                           label_font_family = NULL,
+                           center_text_font_family = NULL,
+                           legend_font_family = NULL,
+                           ruler_fontface = "plain",
                            gc_window = 100L, gc_step = NULL,
                            width = NULL, height = NULL, dpi = 300) {
   ggplasmid(
@@ -4057,6 +4103,10 @@ plot_phage_map <- function(annotation = NULL, gbk = NULL, fasta = NULL,
     legend_plot_spacing = legend_plot_spacing,
     inner_radius = inner_radius,
     font_family = font_family,
+    label_font_family = label_font_family,
+    center_text_font_family = center_text_font_family,
+    legend_font_family = legend_font_family,
+    ruler_fontface = ruler_fontface,
     gc_window = gc_window,
     gc_step = gc_step,
     width = width,
