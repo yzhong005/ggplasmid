@@ -285,7 +285,7 @@ ggplasmid(
   label_text_colour = "black",      # or an annotation-table color column
   label_line_colour = "grey70",     # leader line color
   label_line_linetype = "dashed",   # leader line style
-  legend_position = "bottom",       # outside legend: "top", "bottom", "left", or "right"
+  legend_position = "bottom",       # "top", "bottom", "left", "right", or a corner
   legend_columns = 3,               # top/bottom feature legends default to 3 columns
   gc_legend_columns = 3             # top/bottom GC legend: 3 gives one row
 )
@@ -341,7 +341,8 @@ anchor follows the corresponding edge of the measured outer label envelope, so
 the anchor falls back to the panel corner. Top and bottom legends default to
 three feature columns and one GC legend row; set
 `legend_columns` or `gc_legend_columns` explicitly when you want a different
-layout.
+layout. Use `"right_top"`, `"left_bottom"`, or `"right_bottom"` for the other
+three corners.
 
 The object returned by `read_plasmid_fasta()` includes a `fasta` column
 containing the sequence in FASTA-formatted text:
