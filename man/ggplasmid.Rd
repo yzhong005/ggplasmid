@@ -77,6 +77,7 @@ ggplasmid(
   sequence_linewidth = 0.55,
   label_text_size = NULL,
   label_text_colour = "black",
+  label_fontface = "bold",
   linear_label_wrap_width = 18L,
   linear_label_max_lines = 2L,
   row_label_text_size = 3.4,
@@ -296,6 +297,10 @@ sizes.}
 selected palette, a fixed R colour such as \code{"black"}, a vector with one
 colour per label, or the name of an annotation column containing valid R
 colours.}
+
+\item{label_fontface}{Font face for feature labels: \code{"plain"},
+\code{"bold"}, \code{"italic"}, or \code{"bold.italic"}. The default is
+\code{"bold"}.}
 
 \item{center_text_colour}{Colour for the circular map sample/genome label.}
 

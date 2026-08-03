@@ -2374,6 +2374,7 @@ plot_circular_plasmid <- function(features, genome_length, name = NULL,
                                   ruler_major_linewidth = 0.38,
                                   label_text_size = 3.4,
                                   label_text_colour = "black",
+                                  label_fontface = "bold",
                                   ruler_text_size = 2.25,
                                   center_text_size = 4.3,
                                   center_text_colour = "black",
@@ -2389,6 +2390,10 @@ plot_circular_plasmid <- function(features, genome_length, name = NULL,
                                   ruler_fontface = "plain",
                                   inner_radius = 0.38) {
   phage_topology <- match.arg(phage_topology)
+  label_fontface <- match.arg(
+    label_fontface,
+    c("plain", "bold", "italic", "bold.italic")
+  )
   label_font_family <- label_font_family %||% font_family
   center_text_font_family <- center_text_font_family %||% font_family
   legend_font_family <- legend_font_family %||% font_family
@@ -2604,7 +2609,7 @@ plot_circular_plasmid <- function(features, genome_length, name = NULL,
       family = label_font_family,
       text_colour = "black",
       text_size = effective_label_text_size,
-      fontface = "bold",
+      fontface = label_fontface,
       lineheight = 0.9,
       segment_colour = label_line_colour,
       segment_linewidth = label_linewidth,
@@ -2736,6 +2741,7 @@ plot_linear_plasmid <- function(features, genome_length, name = NULL, rows = 4,
                                 sequence_linewidth = 0.55,
                                 label_text_size = 4.0,
                                 label_text_colour = "black",
+                                label_fontface = "bold",
                                 label_wrap_width = 28L,
                                 linear_label_wrap_width = 18L,
                                 linear_label_max_lines = 2L,
@@ -2762,6 +2768,10 @@ plot_linear_plasmid <- function(features, genome_length, name = NULL, rows = 4,
                                 ruler_fontface = "plain") {
   label_font_family <- label_font_family %||% font_family
   legend_font_family <- legend_font_family %||% font_family
+  label_fontface <- match.arg(
+    label_fontface,
+    c("plain", "bold", "italic", "bold.italic")
+  )
   gene_linewidth <- gene_border_linewidth %||% gene_linewidth
   legend_columns <- validate_legend_columns(legend_columns, legend_position)
   gc_legend_columns <- validate_gc_legend_columns(gc_legend_columns, legend_position)
@@ -3083,7 +3093,7 @@ plot_linear_plasmid <- function(features, genome_length, name = NULL, rows = 4,
             vjust = 0.5,
             colour = I(label_colour),
             size = label_text_size,
-            fontface = "bold",
+            fontface = label_fontface,
             family = label_font_family,
             lineheight = 0.90
           )
@@ -3336,6 +3346,8 @@ plot_linear_plasmid <- function(features, genome_length, name = NULL, rows = 4,
 #' @param sequence_linewidth Linear layout baseline width.
 #' @param label_text_size,ruler_text_size,center_text_size,legend_text_size Text
 #'   sizes.
+#' @param label_fontface Font face for feature labels: `"plain"`, `"bold"`,
+#'   `"italic"`, or `"bold.italic"`. The default is `"bold"`.
 #' @param center_text_colour Colour for the circular map sample/genome label.
 #' @param label_text_colour Label text colour. Use `"category"` to use the
 #'   selected palette, a fixed R colour such as `"black"`, a vector with one
@@ -3460,6 +3472,7 @@ ggplasmid <- function(annotation = NULL, gbk = NULL, fasta = NULL, skew_table = 
                       sequence_linewidth = 0.55,
                       label_text_size = NULL,
                       label_text_colour = "black",
+                      label_fontface = "bold",
                       linear_label_wrap_width = 18L,
                       linear_label_max_lines = 2L,
                       row_label_text_size = 3.4,
@@ -3672,6 +3685,7 @@ ggplasmid <- function(annotation = NULL, gbk = NULL, fasta = NULL, skew_table = 
       ruler_major_linewidth = ruler_major_linewidth,
       label_text_size = label_text_size,
       label_text_colour = label_text_colour,
+      label_fontface = label_fontface,
       ruler_text_size = ruler_text_size,
       center_text_size = center_text_size,
       center_text_colour = center_text_colour,
@@ -3717,6 +3731,7 @@ ggplasmid <- function(annotation = NULL, gbk = NULL, fasta = NULL, skew_table = 
       sequence_linewidth = sequence_linewidth,
       label_text_size = label_text_size,
       label_text_colour = label_text_colour,
+      label_fontface = label_fontface,
       label_wrap_width = label_wrap_width,
       linear_label_wrap_width = linear_label_wrap_width,
       linear_label_max_lines = linear_label_max_lines,
@@ -3999,6 +4014,7 @@ plot_phage_map <- function(annotation = NULL, gbk = NULL, fasta = NULL,
                            sequence_linewidth = 0.55,
                            label_text_size = NULL,
                            label_text_colour = "black",
+                           label_fontface = "bold",
                            linear_label_wrap_width = 18L,
                            linear_label_max_lines = 2L,
                            row_label_text_size = 3.4,
@@ -4092,6 +4108,7 @@ plot_phage_map <- function(annotation = NULL, gbk = NULL, fasta = NULL,
     sequence_linewidth = sequence_linewidth,
     label_text_size = label_text_size,
     label_text_colour = label_text_colour,
+    label_fontface = label_fontface,
     row_label_text_size = row_label_text_size,
     ruler_text_size = ruler_text_size,
     center_text_size = center_text_size,

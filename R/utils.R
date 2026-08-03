@@ -111,12 +111,18 @@ legend_position_inside_for_theme <- function(position, label_bounds = NULL) {
     return(inside_position)
   }
 
+  # Keep an envelope-based corner legend visible when outer labels extend
+  # beyond the panel boundary.
+  clamp_inside <- function(value) {
+    max(0.015, min(0.985, value))
+  }
+
   switch(
     position,
-    left_top = c(bounds[["xmin"]], bounds[["ymax"]]),
-    right_top = c(bounds[["xmax"]], bounds[["ymax"]]),
-    left_bottom = c(bounds[["xmin"]], bounds[["ymin"]]),
-    right_bottom = c(bounds[["xmax"]], bounds[["ymin"]]),
+    left_top = c(clamp_inside(bounds[["xmin"]]), clamp_inside(bounds[["ymax"]])),
+    right_top = c(clamp_inside(bounds[["xmax"]]), clamp_inside(bounds[["ymax"]])),
+    left_bottom = c(clamp_inside(bounds[["xmin"]]), clamp_inside(bounds[["ymin"]])),
+    right_bottom = c(clamp_inside(bounds[["xmax"]]), clamp_inside(bounds[["ymin"]])),
     inside_position
   )
 }
